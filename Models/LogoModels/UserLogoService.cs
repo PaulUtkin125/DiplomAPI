@@ -1,0 +1,45 @@
+﻿using DiplomAPI.Data;
+using Finansu.Model;
+using Microsoft.EntityFrameworkCore;
+
+namespace DiplomAPI.Models.LogoModels
+{
+    public class UserLogoService
+    {
+        public UserLogoService() 
+        {
+
+        }
+
+        public async Task<bool> UserRigistrationAsinc(string login, string password)
+        {
+            using (var context = new dbContact())
+            {
+                var user_Exist = await context.User.FirstOrDefaultAsync(x => x.Loggin == login);
+                if (user_Exist != null) 
+                { // такой пользователь существует
+                    return false;
+                }
+                User newUser = new()
+                {
+                    Loggin = login,
+                    PaswordHash = password
+                };
+                context.User.Add(newUser);
+                context.SaveChanges();
+
+                return true;
+            }
+        }
+
+        public async Task<int?> UserAutorisationAsync(string login, string password) 
+        {
+            using (var context = new dbContact())
+            {
+                var user_Exist = await context.User.FirstOrDefaultAsync(x => x.Loggin == login && x.PaswordHash == password);
+                if (user_Exist != null) return user_Exist.Id;
+                else return null;
+            }
+        }
+    }
+}
