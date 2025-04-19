@@ -23,8 +23,8 @@ namespace DiplomAPI.Controllers
              
         }
 
-        [HttpPost("Autorisation")]
-        public async Task<ActionResult<int?>> Post_UserAutorisation([FromBody] StartUserData user)
+        [HttpGet("Autorisation")]
+        public async Task<ActionResult<int?>> Get_UserAutorisation([FromBody] StartUserData user)
         {
             return await _userLogoService.UserAutorisationAsync(user.Login, user.Password);
         }
