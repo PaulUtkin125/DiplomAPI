@@ -18,15 +18,18 @@ namespace DiplomAPI.Controllers
         [HttpPost("UserAdd")]
         public async Task<ActionResult<bool>> Post_userAdd([FromBody] StartUserData user)
         {
-            
-           return await _userLogoService.UserRigistrationAsinc(user.Login, user.Password);
+            bool resalt = await _userLogoService.UserRigistrationAsinc(user.Login, user.Password);
+            if (resalt) return Ok(true);
+            else return BadRequest(false);
              
         }
 
-        [HttpGet("Autorisation")]
-        public async Task<ActionResult<int?>> Get_UserAutorisation([FromBody] StartUserData user)
+        [HttpPost("Autorisation")]
+        public async Task<ActionResult<int>> Post_UserAutorisation([FromBody] StartUserData user)
         {
-            return await _userLogoService.UserAutorisationAsync(user.Login, user.Password);
+            int? resalt = await _userLogoService.UserAutorisationAsync(user.Login, user.Password);
+            if (resalt != null) return Ok(resalt);
+            else return BadRequest(0);
         }
     }
 }

@@ -10,5 +10,11 @@
         public string SourseFile { get; set; }
         public bool IsClosing { get; set; } = false;
 
+        public string FullNameOfTheDirector { get; set; }
+
+        public int INN {  get; set; }
+        public int KPP { get; set; }
+        public int OKTMO { get; set; }
+        public string Phone { get; set; }
     }
 }

@@ -8,7 +8,7 @@
 
 
         public TypeOfUser TypeOfUser { get; set; }
-        public int TypeOfUserId { get; set; }
+        public int TypeOfUserId { get; set; } = 2;
 
         public double Maney { get; set; } = 0;
     }

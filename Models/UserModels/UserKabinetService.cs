@@ -20,11 +20,11 @@ namespace DiplomAPI.Models.UserModels
             }
         }
 
-        public async Task<List<InvestTools>> UserSToolsAsync(int id)
+        public async Task<List<Portfolio>> UserSToolsAsync(int id)
         {
             using (var context = new dbContact())
             {
-                return await context.Portfolio.Include(x => x.InvestTool).Where(x => x.UserId == id).Select(x => x.InvestTool).ToListAsync();
+                return await context.Portfolio.Include(x => x.InvestTool).Where(x => x.UserId == id).ToListAsync();
             }
         }
 
@@ -113,7 +113,7 @@ namespace DiplomAPI.Models.UserModels
             }
         }
 
-        private async Task<List<string[]>> LoadDataFormDatabaseAsync(int userId)
+        public async Task<List<string[]>?> LoadDataFormDatabaseAsync(int userId)
         {
             List<string[]> strings = new List<string[]>();
             string[] record = new string[2]; // 0 - брокер; 1 - деньги
@@ -121,8 +121,8 @@ namespace DiplomAPI.Models.UserModels
             {
                 var allBrokers = await context.Brokers.ToListAsync();
 
-                DateTime newDate = DateTime.Today;
-                DateTime supportDate = new DateTime(2024, numberOfMonth, DateTime.DaysInMonth(2025, numberOfMonth));  /////////
+                DateTime newDate = new DateTime(2024, 12, 31);
+                DateTime supportDate = new DateTime(2024, numberOfMonth, DateTime.DaysInMonth(2024, numberOfMonth));  /////////
                 DateTime dateFinish = supportDate;
 
                 bool svEnd = false;
@@ -162,11 +162,11 @@ namespace DiplomAPI.Models.UserModels
                     }
                     if (!svEnd)
                     {
-                        //if (supportDate.Month == 1)
-                        //{
+                        if (supportDate.Month == 1)
+                        {
                         //    MessageBox.Show("Нет данных на текущий календарный год!", "Ошибка");
-                        //    return null;
-                        //}
+                              return null;
+                        }
 
                         supportDate = new DateTime(2024, supportDate.Month, 1).AddDays(-1).AddMonths(-1);
                         dateFinish = supportDate;
