@@ -12,6 +12,28 @@ namespace DiplomAPI.Models.UserModels
             
         }
 
+        public async Task<double> _UpdateMoneu(int id, double sum, int vector)
+        {
+            using (var context = new dbContact())
+            {
+                var targetUser = await context.User.FindAsync(id);
+                if (vector == 1) targetUser.Maney -= sum;
+                else targetUser.Maney += sum;
+                context.SaveChanges();
+                return targetUser.Maney;
+            }
+        }
+        public async Task<User?> UserMoneyLoadAsync(int id)
+        {
+            using (var context = new dbContact())
+            {
+                return await context.User.FindAsync(id);
+            }
+        }
+
+
+
+
         public async Task<List<InvestTools>> AllToolsLoadAsync()
         {
             using (var context = new dbContact())
