@@ -53,7 +53,7 @@ namespace DiplomAPI.Models.UserModels
         private int startNumberOfMonth = 0;
         private int numberOfMonth = 12;
 
-        public async Task<double?> Calculate(int id, DateTime? dateStart, DateTime? dateFinish)
+        public async Task<double> Calculate(int id, DateTime? dateStart, DateTime? dateFinish)
         {
             DateTime dateSt = dateStart.Value;
             DateTime dateFin = dateFinish.Value;
@@ -92,7 +92,7 @@ namespace DiplomAPI.Models.UserModels
                 if (!svStart)
                 {
                     //MessageBox.Show("Нет данных на начало выбранного отчетного периода!", "Ошибка");           // !!!!
-                    return null;
+                    return 0.0;
                 }
 
 
@@ -113,7 +113,7 @@ namespace DiplomAPI.Models.UserModels
                 if (!svEnd)
                 {
                     //MessageBox.Show("Нет данных на конец выбранного отчетного периода!", "Ошибка");          // !!!!
-                    return null;
+                    return 0.0;
                 }
 
 

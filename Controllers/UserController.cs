@@ -1,4 +1,5 @@
 ﻿using DiplomAPI.Data;
+using DiplomAPI.Model.Support;
 using DiplomAPI.Models.Support;
 using DiplomAPI.Models.UserModels;
 using Finansu.Model;
@@ -39,11 +40,11 @@ namespace DiplomAPI.Controllers
             return Ok(await _userKabinetService.UserSToolsAsync(id));
         }
 
-        [HttpGet("Calculate")]
-        public async Task<ActionResult<double?>> Get_CalculatedAsync([FromBody] int id, DateTime? dateStart, DateTime? dateFinish)
+        [HttpPost("Calculate")]
+        public async Task<ActionResult<double>> Post_CalculatedAsync([FromBody] CalculateSupport calculateSupport)
         {
-            double? resalt = await _userKabinetService.Calculate(id, dateStart, dateFinish);
-            if (resalt == null) return BadRequest(resalt);
+            double? resalt = await _userKabinetService.Calculate(calculateSupport.Id, calculateSupport.dateStart, calculateSupport.dateFinish);
+            if (resalt == 0.0) return BadRequest(resalt);
             return Ok(resalt);
         }
 
