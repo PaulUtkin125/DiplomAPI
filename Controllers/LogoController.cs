@@ -1,6 +1,11 @@
-﻿using DiplomAPI.Models.LogoModels;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using DiplomAPI.Models.LogoModels;
 using DiplomAPI.Models.Support;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace DiplomAPI.Controllers
 {

@@ -3,12 +3,13 @@ using DiplomAPI.Model.Support;
 using DiplomAPI.Models.Support;
 using DiplomAPI.Models.UserModels;
 using Finansu.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DiplomAPI.Controllers
 {
-
+    [Authorize]
     [Controller]
     [Route("api/[controller]")]
     public class UserController : ControllerBase
