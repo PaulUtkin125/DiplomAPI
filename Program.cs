@@ -13,31 +13,7 @@ namespace DiplomAPI
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                
-            })
-            .AddJwtBearer(options =>
-            {
-                var jwtKey = builder.Configuration["JWT:Key"];
-                var jwtIssuer = builder.Configuration["JWT:Issuer"];
-                var jwtAudience = builder.Configuration["JWT:Audience"];
-                
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = jwtIssuer,
-                    ValidAudience = jwtAudience,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
-                };
-            });
-
-            builder.Services.AddAuthentication();
+            
             // Add services to the container.
 
             builder.Services.AddControllers();
@@ -59,23 +35,6 @@ namespace DiplomAPI
             app.UseAuthentication();
             app.UseAuthorization();
 
-
-            app.Map("/LoginForm/Index/{id}", (string id) =>
-            {
-                var jwtKey = builder.Configuration["JWT:Key"];
-                var jwtIssuer = builder.Configuration["JWT:Issuer"];
-                var jwtAudience = builder.Configuration["JWT:Audience"];
-
-                var claims = new List<Claim> { new Claim(ClaimTypes.Name, id) };
-                var jwt = new JwtSecurityToken(
-                        issuer: jwtIssuer,
-                        audience: jwtAudience,
-                        claims: claims,
-                expires: DateTime.UtcNow.Add(TimeSpan.FromMinutes(20))); // время действия 20 минуты
-                        
-
-                return new JwtSecurityTokenHandler().WriteToken(jwt);
-            });
 
             app.MapControllers();
 

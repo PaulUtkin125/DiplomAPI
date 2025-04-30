@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DiplomAPI.Controllers
 {
-    [Authorize]
     [Controller]
     [Route("api/[controller]")]
     public class UserController : ControllerBase
