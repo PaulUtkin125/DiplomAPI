@@ -38,7 +38,7 @@ namespace DiplomAPI.Models.UserModels
         {
             using (var context = new dbContact())
             {
-                return await context.InvestTools.ToListAsync();
+                return await context.InvestTools.Include(x=> x.Brokers).ToListAsync();
             }
         }
 

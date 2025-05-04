@@ -21,11 +21,11 @@ namespace DiplomAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<double>> Post_UserDataAsync([FromBody]int id) 
+        public async Task<ActionResult<User>> Post_UserDataAsync([FromBody]int id) 
         {
             var resalt = await _userKabinetService.UserMoneyLoadAsync(id);
-            if (resalt == null) return BadRequest(resalt.Maney);
-            else return Ok(resalt.Maney);
+            if (resalt == null) return BadRequest(resalt);
+            else return Ok(resalt);
         }
 
         [HttpGet("allInvestTool")]
