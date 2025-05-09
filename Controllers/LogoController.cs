@@ -1,9 +1,13 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using DiplomAPI.Data;
 using DiplomAPI.Models.LogoModels;
 using DiplomAPI.Models.Support;
+using Finansu.Model;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -18,6 +22,20 @@ namespace DiplomAPI.Controllers
         public LogoController()
         {
             _userLogoService = new UserLogoService();
+        }
+
+        [HttpPost("validationMail")]
+        public async Task<ActionResult<bool>> Post_validationMail([FromBody] MailRequest request)
+        {
+            using (var context = new dbContact())
+            {
+                var user_Exist = await context.User.FirstOrDefaultAsync(x => x.Loggin == request.ToMail);
+                if (user_Exist != null)
+                { // такой пользователь существует
+                    return BadRequest(false);
+                }
+                else return Ok(true);
+            }
         }
 
         [HttpPost("UserAdd")]
