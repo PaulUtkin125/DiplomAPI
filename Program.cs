@@ -14,6 +14,17 @@ namespace DiplomAPI
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAllOrigins",
+                    builder =>
+                    {
+                        builder.AllowAnyOrigin()
+                               .AllowAnyMethod()
+                               .AllowAnyHeader();
+                    });
+            });
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -23,8 +34,12 @@ namespace DiplomAPI
                 app.UseSwaggerUI();
             }
 
+            // Включите CORS в конвейере обработки запросов
+            app.UseCors("AllowAllOrigins");
+
             app.UseHttpsRedirection();
 
+            app.UseHttpsRedirection();
             app.UseAuthorization();
 
 

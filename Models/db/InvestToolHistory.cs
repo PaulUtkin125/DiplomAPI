@@ -7,10 +7,11 @@
 
         public InvestTools InvestTools { get; set; }
         public int InvestToolsId { get; set; }
-
-        public double AllManey { get; set; }
+        public double Price { get; set; }
 
         public User User { get; set; }
         public int UserId { get; set; }
+
+        public double Quentity { get; set; }
     }
 }

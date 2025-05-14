@@ -12,9 +12,12 @@
 
         public string FullNameOfTheDirector { get; set; }
 
-        public int INN {  get; set; }
-        public int KPP { get; set; }
-        public int OKTMO { get; set; }
+        public long INN {  get; set; }
+        public long KPP { get; set; }
+        public long OKTMO { get; set; }
         public string Phone { get; set; }
+        public string BusinessAddress { get; set; }
+        public string Email { get; set; }
+        public bool isAdmitted { get; set; } = false;
     }
 }

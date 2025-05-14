@@ -15,5 +15,6 @@ namespace Finansu.Model
         public int InvestToolId { get; set; }
 
         public double AllManey { get; set; }
+        public int Quentity { get; set; }
     }
 }

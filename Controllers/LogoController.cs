@@ -1,6 +1,8 @@
-﻿using DiplomAPI.Models.LogoModels;
+﻿using DiplomAPI.Data;
+using DiplomAPI.Models.LogoModels;
 using DiplomAPI.Models.Support;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace DiplomAPI.Controllers
 {
@@ -14,6 +16,21 @@ namespace DiplomAPI.Controllers
         {
             _userLogoService = new UserLogoService();
         }
+
+        [HttpPost("validationMail")]
+        public async Task<ActionResult<bool>> Post_validationMail([FromBody] MailRequest request)
+        {
+            using (var context = new dbContact())
+            {
+                var user_Exist = await context.User.FirstOrDefaultAsync(x => x.Loggin == request.ToMail);
+                if (user_Exist != null)
+                { // такой пользователь существует
+                    return BadRequest(false);
+                }
+                else return Ok(true);
+            }
+        }
+
 
         [HttpPost("UserAdd")]
         public async Task<ActionResult<bool>> Post_userAdd([FromBody] StartUserData user)

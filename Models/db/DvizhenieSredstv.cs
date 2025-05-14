@@ -12,5 +12,6 @@
         public int UserId { get; set; }
 
         public double Money { get; set; } = 0;
+        public int Quentity { get; set; }
     }
 }

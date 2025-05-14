@@ -38,7 +38,17 @@ namespace DiplomAPI.Models.UserModels
         {
             using (var context = new dbContact())
             {
-                return await context.InvestTools.ToListAsync();
+                var allTools = await context.InvestTools.Include(x => x.Brokers).ToListAsync();
+
+                List<InvestTools> list = new List<InvestTools>();
+                foreach (var investTool in allTools) 
+                {
+                    byte[] imageArray = System.IO.File.ReadAllBytes(investTool.ImageSource);
+                    investTool.ImageSource = Convert.ToBase64String(imageArray);
+                    list.Add(investTool);
+                }
+
+                return list;
             }
         }
 
@@ -46,14 +56,22 @@ namespace DiplomAPI.Models.UserModels
         {
             using (var context = new dbContact())
             {
-                return await context.Portfolio.Include(x => x.InvestTool).Where(x => x.UserId == id).ToListAsync();
+                var UTools = await context.Portfolio.Include(x => x.InvestTool).Where(x => x.UserId == id).ToListAsync();
+                List<Portfolio> list = new List<Portfolio>();
+                foreach (var tool in UTools)
+                {
+                    byte[] imageArray = System.IO.File.ReadAllBytes(tool.InvestTool.ImageSource);
+                    tool.InvestTool.ImageSource = Convert.ToBase64String(imageArray);
+                    list.Add(tool);
+                }
+                return list;
             }
         }
 
         private int startNumberOfMonth = 0;
         private int numberOfMonth = 12;
 
-        public async Task<double?> Calculate(int id, DateTime? dateStart, DateTime? dateFinish)
+        public async Task<double> Calculate(int id, DateTime? dateStart, DateTime? dateFinish)
         {
             DateTime dateSt = dateStart.Value;
             DateTime dateFin = dateFinish.Value;
@@ -92,7 +110,7 @@ namespace DiplomAPI.Models.UserModels
                 if (!svStart)
                 {
                     //MessageBox.Show("Нет данных на начало выбранного отчетного периода!", "Ошибка");           // !!!!
-                    return null;
+                    return 0.0;
                 }
 
 
@@ -113,7 +131,7 @@ namespace DiplomAPI.Models.UserModels
                 if (!svEnd)
                 {
                     //MessageBox.Show("Нет данных на конец выбранного отчетного периода!", "Ошибка");          // !!!!
-                    return null;
+                    return 0.0;
                 }
 
 
@@ -122,11 +140,11 @@ namespace DiplomAPI.Models.UserModels
 
 
 
-                double vvodSum = conext.dvizhenieSredstvs.Where(x => x.Money > 0 && x.Date >= dateSt && x.Date <= dateFin && x.UserId == id).Select(x => x.Money).Sum();
-                double vuvodSum = Math.Abs(conext.dvizhenieSredstvs.Where(x => x.Money < 0 && x.Date >= dateSt && x.Date <= dateFin && x.UserId == id).Select(x => x.Money).Sum());
+                double vvodSum = conext.dvizhenieSredstvs.Where(x => x.Money > 0 && x.Date >= dateSt && x.Date <= dateFin && x.UserId == id).Select(x => x.Money * x.Quentity).Sum();
+                double vuvodSum = Math.Abs(conext.dvizhenieSredstvs.Where(x => x.Money < 0 && x.Date >= dateSt && x.Date <= dateFin && x.UserId == id).Select(x => x.Money * x.Quentity).Sum());
 
-                double startManey = moveStartInvestToolExist.Select(x => x.AllManey).Sum();
-                double endManey = moveFinishInvestToolExist.Select(x => x.AllManey).Sum();
+                double startManey = moveStartInvestToolExist.Select(x => x.Price).Sum();
+                double endManey = moveFinishInvestToolExist.Select(x => x.Price).Sum();
 
                 double resalt = Math.Round((endManey - startManey + vuvodSum - vvodSum), 2);
 
@@ -149,51 +167,10 @@ namespace DiplomAPI.Models.UserModels
 
                 bool svEnd = false;
 
-                List<InvestToolHistory> preSegments = null;
+                List<Portfolio> preSegments = null;
 
-
-                for (int t = 0; t < 12; t++)
-                {
-                    preSegments = context.InvestToolHistory
-                               .Where(x => x.DataIzmrneniiy.Date == dateFinish.Date && x.UserId == userId)
-                               .Include(x => x.InvestTools)
-                               .Include(x => x.InvestTools.Brokers)
-                               .ToList();
-
-                    for (int i = 0; i < 5; i++)
-                    {
-                        if (preSegments.Count == 0)
-                        {
-                            dateFinish = dateFinish.AddDays(1);
-                            preSegments = context.InvestToolHistory
-                                   .Where(x => x.DataIzmrneniiy.Date == dateFinish.Date && x.UserId == userId)
-                                   .Include(x => x.InvestTools)
-                                   .Include(x => x.InvestTools.Brokers)
-                                   .ToList();
-                        }
-                        else
-                        {
-                            if (svEnd == false)
-                            {
-                                svEnd = true;
-                                numberOfMonth = dateFinish.Month;
-                                startNumberOfMonth = numberOfMonth;
-                                break;
-                            }
-                        }
-                    }
-                    if (!svEnd)
-                    {
-                        if (supportDate.Month == 1)
-                        {
-                        //    MessageBox.Show("Нет данных на текущий календарный год!", "Ошибка");
-                              return null;
-                        }
-
-                        supportDate = new DateTime(2024, supportDate.Month, 1).AddDays(-1).AddMonths(-1);
-                        dateFinish = supportDate;
-                    }
-                }
+                preSegments = context.Portfolio.Include(x => x.InvestTool).Where(x => x.UserId == userId).ToList();
+               
 
 
                 foreach (var Broker in allBrokers)
@@ -202,22 +179,22 @@ namespace DiplomAPI.Models.UserModels
                     double sum = 0;
                     foreach (var myBrokers in preSegments)
                     {
-                        if (myBrokers.InvestTools.BrokersId == Broker.Id)
+                        if (myBrokers.InvestTool.BrokersId == Broker.Id)
                         {
                             if (sv == false)
                             {
                                 record = new string[2];
-                                record[0] = myBrokers.InvestTools.Brokers.NameBroker;
+                                record[0] = myBrokers.InvestTool.Brokers.NameBroker;
                                 sv = true;
+
+                                sum += myBrokers.AllManey;
+
+                                record[1] = sum.ToString();
+                                strings.Add(record);
                             }
-
-                            sum += myBrokers.AllManey;
-
-                            record[1] = sum.ToString();
                         }
 
                     }
-                    strings.Add(record);
                     sv = false;
                 }
             }

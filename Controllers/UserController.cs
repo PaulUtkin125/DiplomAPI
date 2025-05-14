@@ -1,4 +1,5 @@
 ﻿using DiplomAPI.Data;
+using DiplomAPI.Model.Support;
 using DiplomAPI.Models.Support;
 using DiplomAPI.Models.UserModels;
 using Finansu.Model;
@@ -23,8 +24,8 @@ namespace DiplomAPI.Controllers
         public async Task<ActionResult<double>> Post_UserDataAsync([FromBody]int id) 
         {
             var resalt = await _userKabinetService.UserMoneyLoadAsync(id);
-            if (resalt == null) return BadRequest(resalt.Maney);
-            else return Ok(resalt.Maney);
+            if (resalt == null) return BadRequest(resalt);
+            else return Ok(resalt);
         }
 
         [HttpGet("allInvestTool")]
@@ -39,10 +40,10 @@ namespace DiplomAPI.Controllers
             return Ok(await _userKabinetService.UserSToolsAsync(id));
         }
 
-        [HttpGet("Calculate")]
-        public async Task<ActionResult<double?>> Get_CalculatedAsync([FromBody] int id, DateTime? dateStart, DateTime? dateFinish)
+        [HttpPost("Calculate")]
+        public async Task<ActionResult<double?>> Get_CalculatedAsync([FromBody] CalculateSupport calculateSupport)
         {
-            double? resalt = await _userKabinetService.Calculate(id, dateStart, dateFinish);
+            double? resalt = await _userKabinetService.Calculate(calculateSupport.Id, calculateSupport.dateStart, calculateSupport.dateFinish);
             if (resalt == null) return BadRequest(resalt);
             return Ok(resalt);
         }
