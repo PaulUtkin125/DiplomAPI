@@ -3,12 +3,12 @@ using DiplomAPI.Model.Support;
 using DiplomAPI.Models.Support;
 using DiplomAPI.Models.UserModels;
 using Finansu.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DiplomAPI.Controllers
 {
-
     [Controller]
     [Route("api/[controller]")]
     public class UserController : ControllerBase
@@ -21,7 +21,7 @@ namespace DiplomAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<double>> Post_UserDataAsync([FromBody]int id) 
+        public async Task<ActionResult<User>> Post_UserDataAsync([FromBody]int id) 
         {
             var resalt = await _userKabinetService.UserMoneyLoadAsync(id);
             if (resalt == null) return BadRequest(resalt);

@@ -15,20 +15,21 @@ namespace DiplomAPI.Models.LogoModels
         {
             using (var context = new dbContact())
             {
-                var user_Exist = await context.User.FirstOrDefaultAsync(x => x.Loggin == login);
-                if (user_Exist != null) 
-                { // такой пользователь существует
+                try
+                {
+                    User newUser = new()
+                    {
+                        Loggin = login,
+                        PaswordHash = password
+                    };
+                    context.User.Add(newUser);
+                    context.SaveChanges();
+                    return true;
+                }
+                catch (Exception)
+                {
                     return false;
                 }
-                User newUser = new()
-                {
-                    Loggin = login,
-                    PaswordHash = password
-                };
-                context.User.Add(newUser);
-                context.SaveChanges();
-
-                return true;
             }
         }
 

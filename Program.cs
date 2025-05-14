@@ -1,3 +1,10 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using DiplomAPI.Models.Support;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.OAuth;
+using Microsoft.IdentityModel.Tokens;
 
 namespace DiplomAPI
 {
@@ -7,6 +14,7 @@ namespace DiplomAPI
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            
             // Add services to the container.
 
             builder.Services.AddControllers();
