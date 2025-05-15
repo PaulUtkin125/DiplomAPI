@@ -161,10 +161,6 @@ namespace DiplomAPI.Models.UserModels
             {
                 var allBrokers = await context.Brokers.ToListAsync();
 
-                DateTime newDate = new DateTime(2024, 12, 31);
-                DateTime supportDate = new DateTime(2024, numberOfMonth, DateTime.DaysInMonth(2024, numberOfMonth));  /////////
-                DateTime dateFinish = supportDate;
-
                 bool svEnd = false;
 
                 List<Portfolio> preSegments = null;

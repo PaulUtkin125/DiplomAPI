@@ -6,6 +6,7 @@ using Finansu.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace DiplomAPI.Controllers
 {
@@ -62,6 +63,52 @@ namespace DiplomAPI.Controllers
         {
             var resalt = await _userKabinetService._UpdateMoneu(moneuUpdate.id, moneuUpdate.sum, moneuUpdate.vector);
             return Ok(resalt);
+        }
+
+        [HttpPost("BueMethod")]
+        public async Task<ActionResult<int>> Byu([FromBody]BuySuppoprt buySuppoprt)
+        {
+            using (var context = new dbContact())
+            {
+                var user_Exist = await context.User.FindAsync(buySuppoprt.uId);
+                if (buySuppoprt.Price < 0) user_Exist.Maney = Math.Round(user_Exist.Maney - buySuppoprt.Price * buySuppoprt.Quentity, 2);
+                else user_Exist.Maney = Math.Round(user_Exist.Maney - buySuppoprt.Price * buySuppoprt.Quentity, 2);
+
+
+                if (user_Exist.Maney < 0) { return BadRequest(-1); }
+
+                context.Entry(user_Exist).State = EntityState.Modified;
+
+                var newRecord = new DvizhenieSredstv()
+                {
+                    InvestToolsId = buySuppoprt.toolId,
+                    Money = buySuppoprt.Price,
+                    Quentity = buySuppoprt.Quentity,
+                    UserId = buySuppoprt.uId
+                };
+                context.dvizhenieSredstvs.Add(newRecord);
+
+                Portfolio portflio_Existing = context.Portfolio.FirstOrDefault(x => x.UserId == buySuppoprt.uId && x.InvestToolId == buySuppoprt.toolId);
+                portflio_Existing.AllManey = Math.Round(portflio_Existing.AllManey + buySuppoprt.Price, 2);
+
+                if (buySuppoprt.Price < 0) portflio_Existing.Quentity -= buySuppoprt.Quentity;
+                else portflio_Existing.Quentity += buySuppoprt.Quentity;
+
+
+
+                if (portflio_Existing.Quentity < 0)
+                {
+                    return BadRequest(-2);
+                }
+
+                if (portflio_Existing.Quentity == 0) context.Entry(portflio_Existing).State = EntityState.Deleted;
+                else context.Entry(portflio_Existing).State = EntityState.Modified;
+
+
+
+                context.SaveChanges();
+                return Ok(0);
+            }
         }
     }
 }
