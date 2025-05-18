@@ -11,6 +11,7 @@ namespace DiplomAPI.Controllers
     public class UniversalController : ControllerBase
     {
         private static readonly MailSupport _mailSupport = new MailSupport();
+        private static readonly Imageporter _imageporter = new Imageporter();
         
 
         [HttpPost("SendCode")]
@@ -35,8 +36,7 @@ namespace DiplomAPI.Controllers
                 using (var context = new dbContact())
                 {
                     var tool = context.InvestTools.Find(idTool.id);
-                    byte[] imageArray = System.IO.File.ReadAllBytes(tool.ImageSource);
-                    tool.ImageSource = Convert.ToBase64String(imageArray);
+                    tool.ImageSource = _imageporter.porter(tool.ImageSource);
                     return Ok(tool);
                 }
             }

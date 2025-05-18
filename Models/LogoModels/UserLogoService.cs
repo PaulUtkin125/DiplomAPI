@@ -37,7 +37,17 @@ namespace DiplomAPI.Models.LogoModels
         {
             using (var context = new dbContact())
             {
-                var user_Exist = await context.User.FirstOrDefaultAsync(x => x.Loggin == login && x.PaswordHash == password);
+                var user_Exist = await context.User.FirstOrDefaultAsync(x => x.Loggin == login && x.PaswordHash == password && x.TypeOfUserId == 2);
+                if (user_Exist != null) return user_Exist.Id;
+                else return null;
+            }
+        }
+
+        public async Task<int?> AdminAutorisationAsync(string login, string password)
+        {
+            using (var context = new dbContact())
+            {
+                var user_Exist = await context.User.FirstOrDefaultAsync(x => x.Loggin == login && x.PaswordHash == password && x.TypeOfUserId == 1);
                 if (user_Exist != null) return user_Exist.Id;
                 else return null;
             }

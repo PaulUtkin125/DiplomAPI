@@ -1,4 +1,6 @@
-﻿namespace Finansu.Model
+﻿using Diplom_Utkin.Model.DataBase;
+
+namespace Finansu.Model
 {
     public class Brokers
     {
@@ -19,5 +21,9 @@
         public string BusinessAddress { get; set; }
         public string Email { get; set; }
         public bool isAdmitted { get; set; } = false;
+        public DateOnly dateSubmitted { get; set; } = new DateOnly();
+
+        public TypeOfRequest TypeOfRequest { get; set; }
+        public int TypeOfRequestId { get; set; } = 1;
     }
 }

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DiplomAPI.Migrations
 {
     [DbContext(typeof(dbContact))]
-    [Migration("20250514162025_startPoint")]
+    [Migration("20250517124732_startPoint")]
     partial class startPoint
     {
         /// <inheritdoc />
@@ -24,6 +24,23 @@ namespace DiplomAPI.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("Diplom_Utkin.Model.DataBase.TypeOfRequest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TypeRequest");
+                });
 
             modelBuilder.Entity("Finansu.Model.Brokers", b =>
                 {
@@ -69,13 +86,21 @@ namespace DiplomAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("TypeOfRequestId")
+                        .HasColumnType("int");
+
                     b.Property<int>("UrisidikciiyId")
                         .HasColumnType("int");
+
+                    b.Property<DateOnly>("dateSubmitted")
+                        .HasColumnType("date");
 
                     b.Property<bool>("isAdmitted")
                         .HasColumnType("bit");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("TypeOfRequestId");
 
                     b.HasIndex("UrisidikciiyId");
 
@@ -259,6 +284,9 @@ namespace DiplomAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Phone")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("TypeOfUserId")
                         .HasColumnType("int");
 
@@ -271,11 +299,19 @@ namespace DiplomAPI.Migrations
 
             modelBuilder.Entity("Finansu.Model.Brokers", b =>
                 {
+                    b.HasOne("Diplom_Utkin.Model.DataBase.TypeOfRequest", "TypeOfRequest")
+                        .WithMany()
+                        .HasForeignKey("TypeOfRequestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Finansu.Model.Urisidikciiy", "Urisidikciiy")
                         .WithMany()
                         .HasForeignKey("UrisidikciiyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("TypeOfRequest");
 
                     b.Navigation("Urisidikciiy");
                 });

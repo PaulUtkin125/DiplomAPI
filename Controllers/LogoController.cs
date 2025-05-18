@@ -50,5 +50,13 @@ namespace DiplomAPI.Controllers
             if (resalt != null) return Ok(resalt);
             else return BadRequest(0);
         }
+
+        [HttpPost("AutorisationAdmin")]
+        public async Task<ActionResult<int>> Post_AdminAutorisation([FromBody] StartUserData user)
+        {
+            int? resalt = await _userLogoService.AdminAutorisationAsync(user.Login, user.Password);
+            if (resalt != null) return Ok(resalt);
+            else return BadRequest(0);
+        }
     }
 }

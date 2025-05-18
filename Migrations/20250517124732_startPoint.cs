@@ -25,6 +25,19 @@ namespace DiplomAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "TypeRequest",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TypeRequest", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Urisidikciiy",
                 columns: table => new
                 {
@@ -45,6 +58,7 @@ namespace DiplomAPI.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Loggin = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Phone = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     PaswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     TypeOfUserId = table.Column<int>(type: "int", nullable: false),
                     Maney = table.Column<double>(type: "float", nullable: false)
@@ -77,11 +91,19 @@ namespace DiplomAPI.Migrations
                     Phone = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     BusinessAddress = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    isAdmitted = table.Column<bool>(type: "bit", nullable: false)
+                    isAdmitted = table.Column<bool>(type: "bit", nullable: false),
+                    dateSubmitted = table.Column<DateOnly>(type: "date", nullable: false),
+                    TypeOfRequestId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Brokers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Brokers_TypeRequest_TypeOfRequestId",
+                        column: x => x.TypeOfRequestId,
+                        principalTable: "TypeRequest",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Brokers_Urisidikciiy_UrisidikciiyId",
                         column: x => x.UrisidikciiyId,
@@ -199,6 +221,11 @@ namespace DiplomAPI.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Brokers_TypeOfRequestId",
+                table: "Brokers",
+                column: "TypeOfRequestId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Brokers_UrisidikciiyId",
                 table: "Brokers",
                 column: "UrisidikciiyId");
@@ -262,6 +289,9 @@ namespace DiplomAPI.Migrations
 
             migrationBuilder.DropTable(
                 name: "typeOfUser");
+
+            migrationBuilder.DropTable(
+                name: "TypeRequest");
 
             migrationBuilder.DropTable(
                 name: "Urisidikciiy");
