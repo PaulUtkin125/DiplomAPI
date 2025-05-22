@@ -90,5 +90,93 @@ namespace DiplomAPI.Controllers
                 return BadRequest(ex);
             }
         }
+
+        [HttpPost("AllUserlist")]
+        public async Task<ActionResult<List<User>>> AllUser([FromBody]int userId)
+        {
+            using (var context = new dbContact())
+            {
+                var Users = await context.User.Include(x => x.TypeOfUser).Where(x => x.Id != userId && x.TypeOfUserId != 4).ToListAsync();
+                return Ok(Users);
+            }
+        }
+
+        [HttpPost("targetUser")]
+        public async Task<ActionResult> targetUser([FromBody] ToolRequest Request)
+        {
+            using (var context = new dbContact())
+            {
+                var data = await context.User.Include(x => x.TypeOfUser).FirstAsync(x => x.Id == Request.id);
+                if (data == null) return BadRequest();
+
+                return Ok(data);
+            }
+        }
+
+        [HttpGet("AllUserType")]
+        public async Task<ActionResult<List<TypeOfUser>>> AllUserType()
+        {
+            try
+            {
+                using (var context = new dbContact())
+                {
+                    var resalt = await context.typeOfUser.ToListAsync();
+                    return Ok(resalt);
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+        }
+
+        [HttpPatch("deleteUser")]
+        public async Task<ActionResult> DeleteUser([FromBody]int id)
+        {
+            using (var context = new dbContact())
+            {
+                try
+                {
+                    var targetUser = await context.User.FindAsync(id);
+                    targetUser.TypeOfUserId = 4;
+
+                    context.Entry(targetUser).State = EntityState.Modified;
+                    context.SaveChanges();
+
+                    return Ok();
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(ex);
+                }
+            }
+        }
+
+        [HttpPatch("updateUser")]
+        public async Task<ActionResult> updateUser([FromBody]User request)
+        {
+            try
+            {
+                using (var context = new dbContact())
+                {
+                    var user_Exist = await context.User.FindAsync(request.Id);
+
+                    if (request.TypeOfUserId != 0 &&
+                        request.TypeOfUserId != user_Exist.TypeOfUserId) user_Exist.TypeOfUserId = request.TypeOfUserId;
+
+                    if (request.Loggin != null && request.Loggin != user_Exist.Loggin) user_Exist.Loggin = request.Loggin;
+                    if (request.Phone != null && request.Phone != user_Exist.Phone) user_Exist.Phone = request.Phone;
+
+                    context.Entry(user_Exist).State = EntityState.Modified;
+                    context.SaveChanges();
+
+                    return Ok();
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+        }
     }
 }
