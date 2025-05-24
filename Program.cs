@@ -33,6 +33,8 @@ namespace DiplomAPI
                     });
             });
 
+            builder.Configuration.AddJsonFile("appsettings.json");
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

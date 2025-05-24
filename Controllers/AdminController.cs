@@ -13,7 +13,7 @@ namespace DiplomAPI.Controllers
     public class AdminController : ControllerBase
     {
         private static readonly Imageporter _imageporter = new Imageporter();
-        
+       
 
         [HttpGet("NewBrokersList")]
         public async Task<ActionResult<List<Brokers>>> NewBrokersList()
