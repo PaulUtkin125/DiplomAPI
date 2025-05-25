@@ -33,6 +33,19 @@ namespace DiplomAPI.Controllers
             }
         }
 
+        [HttpPost("validationBrokerMail")]
+        public async Task<ActionResult<bool>> validationBrokerMail([FromBody] MailRequest request)
+        {
+            using (var context = new dbContact())
+            {
+                var user_Exist = await context.Brokers.FirstOrDefaultAsync(x => x.Email == request.ToMail);
+                if (user_Exist != null)
+                { // такой пользователь существует
+                    return Ok(false);
+                }
+                else return Ok(true);
+            }
+        }
 
         [HttpPost("UserAdd")]
         public async Task<ActionResult<bool>> Post_userAdd([FromBody] StartUserData user)

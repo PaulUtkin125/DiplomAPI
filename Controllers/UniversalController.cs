@@ -34,6 +34,17 @@ namespace DiplomAPI.Controllers
             }
         }
 
+        [HttpPost("ValidationINN")]
+        public async Task<ActionResult<bool>> ValidationINN([FromBody] MailRequest request)
+        {
+            using (var context = new dbContact())
+            {
+                var testData = await context.Brokers.FirstOrDefaultAsync(x => x.INN.ToString() == request.ToMail);
+                if (testData != null) return Ok(1);
+                return Ok(0);
+            }
+        }
+
         [HttpPost("targetToolInformation")]
         public async Task<ActionResult<InvestTools>> TargetToolInformation([FromBody]ToolRequest idTool)
         {
@@ -63,6 +74,7 @@ namespace DiplomAPI.Controllers
                 {
                     var testData = await context.Brokers.FirstOrDefaultAsync(x=> x.INN.ToString() == request.INN);
                     if (testData != null) return Ok(1);
+
 
                     Brokers brokers = new Brokers()
                     {
@@ -95,19 +107,20 @@ namespace DiplomAPI.Controllers
             string targetPath;
             if (file == null || file.Length == 0)
             {
-                targetPath = Path.Combine(desktopPath, _configuration["UploadFile:Support"]+ "\\NoNPhoto.png");
+                targetPath = Path.Combine(desktopPath, _configuration["UploadFile:Support"]+ "\\NoNPhoto.png"); 
             }
             else 
             {
                 targetPath = Path.Combine(desktopPath, file.FileName);
+                using (var stream = new FileStream(targetPath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
             }
 
             
 
-            using (var stream = new FileStream(targetPath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
+            
             return targetPath;
         }
     }
