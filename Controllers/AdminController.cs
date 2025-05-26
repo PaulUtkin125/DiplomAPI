@@ -1,4 +1,5 @@
-﻿using Azure.Core;
+﻿using System.Text;
+using Azure.Core;
 using Diplom_Utkin.Model.Support;
 using DiplomAPI.Data;
 using DiplomAPI.Models.Support;
@@ -12,13 +13,20 @@ namespace DiplomAPI.Controllers
     [Route("api/[controller]")]
     public class AdminController : ControllerBase
     {
+        private readonly MailSupport _mailSupport;
         private static readonly Imageporter _imageporter = new Imageporter();
-       
+        private static IConfiguration _configuration;
+
+        public AdminController(IConfiguration configuration) 
+        {
+            _configuration = configuration;
+            _mailSupport = new MailSupport(_configuration);
+        }
 
         [HttpGet("NewBrokersList")]
         public async Task<ActionResult<List<Brokers>>> NewBrokersList()
         {
-            using (var context = new dbContact())
+            using (var context = new dbContact(_configuration))
             {
                 var Broker = await context.Brokers.Include(x => x.Urisidikciiy).Where(x => x.TypeOfRequestId == 1 && x.isAdmitted == false && x.IsClosing == false).ToListAsync();
                 foreach (var item in Broker)
@@ -36,7 +44,7 @@ namespace DiplomAPI.Controllers
         [HttpGet("NotNewBrokersList")]
         public async Task<ActionResult<List<Brokers>>> NotNewBrokersList()
         {
-            using (var context = new dbContact())
+            using (var context = new dbContact(_configuration))
             {
                 var Broker = await context.Brokers.Include(x => x.Urisidikciiy).Include(x => x.TypeOfRequest).Where(x => x.TypeOfRequestId != 1).ToListAsync();
                 foreach (var item in Broker)
@@ -54,7 +62,7 @@ namespace DiplomAPI.Controllers
         [HttpPost("targetBroker")]
         public async Task<ActionResult> targetBroker([FromBody]ToolRequest Request)
         {
-            using (var context = new dbContact())
+            using (var context = new dbContact(_configuration))
             {
                 var data = await context.Brokers.Include(x => x.Urisidikciiy).FirstAsync(x => x.Id == Request.id);
                 if (data == null) return BadRequest();
@@ -69,12 +77,17 @@ namespace DiplomAPI.Controllers
         {
             try
             {
-                using (var context = new dbContact())
+                using (var context = new dbContact(_configuration))
                 {
                     var broker_Exist = await context.Brokers.FindAsync(modefite.brokerId);
                     if (modefite.mode == 0) // одобрить
                     {
+                        string password = PasswordGenerator();
+
                         broker_Exist.TypeOfRequestId = 2;
+                        broker_Exist.Password = password;
+
+                        _mailSupport.SendConfirmation(broker_Exist.Email, password);
                     }
                     if (modefite.mode == 1) // отклонён
                     {
@@ -91,10 +104,35 @@ namespace DiplomAPI.Controllers
             }
         }
 
+        static private string PasswordGenerator()
+        {
+            const int length = 10;
+
+            const string lowerChars = "abcdefghijklmnopqrstuvwxyz";
+            const string upperChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const string digits = "0123456789";
+            const string specialChars = "!@#$%^&*()-_=+[]{};:,.<>?";
+
+            Random random = new Random();
+            StringBuilder passwordBuilder = new StringBuilder();
+            passwordBuilder.Append(lowerChars[random.Next(lowerChars.Length)]);
+            passwordBuilder.Append(upperChars[random.Next(upperChars.Length)]);
+            passwordBuilder.Append(digits[random.Next(digits.Length)]);
+            passwordBuilder.Append(specialChars[random.Next(specialChars.Length)]);
+
+            string allChars = lowerChars + upperChars + digits + specialChars;
+            for (int i = 4; i < length; i++)
+            {
+                passwordBuilder.Append(allChars[random.Next(allChars.Length)]);
+            }
+
+            return new string(passwordBuilder.ToString().OrderBy(c => random.Next()).ToArray());
+        }
+
         [HttpPost("AllUserlist")]
         public async Task<ActionResult<List<User>>> AllUser([FromBody]int userId)
         {
-            using (var context = new dbContact())
+            using (var context = new dbContact(_configuration))
             {
                 var Users = await context.User.Include(x => x.TypeOfUser).Where(x => x.Id != userId && x.TypeOfUserId != 4).ToListAsync();
                 return Ok(Users);
@@ -104,7 +142,7 @@ namespace DiplomAPI.Controllers
         [HttpPost("targetUser")]
         public async Task<ActionResult> targetUser([FromBody] ToolRequest Request)
         {
-            using (var context = new dbContact())
+            using (var context = new dbContact(_configuration))
             {
                 var data = await context.User.Include(x => x.TypeOfUser).FirstAsync(x => x.Id == Request.id);
                 if (data == null) return BadRequest();
@@ -118,7 +156,7 @@ namespace DiplomAPI.Controllers
         {
             try
             {
-                using (var context = new dbContact())
+                using (var context = new dbContact(_configuration))
                 {
                     var resalt = await context.typeOfUser.ToListAsync();
                     return Ok(resalt);
@@ -133,7 +171,7 @@ namespace DiplomAPI.Controllers
         [HttpPatch("deleteUser")]
         public async Task<ActionResult> DeleteUser([FromBody]int id)
         {
-            using (var context = new dbContact())
+            using (var context = new dbContact(_configuration))
             {
                 try
                 {
@@ -157,7 +195,7 @@ namespace DiplomAPI.Controllers
         {
             try
             {
-                using (var context = new dbContact())
+                using (var context = new dbContact(_configuration))
                 {
                     var user_Exist = await context.User.FindAsync(request.Id);
 

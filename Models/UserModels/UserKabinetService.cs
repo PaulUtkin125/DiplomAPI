@@ -2,19 +2,21 @@
 using Finansu.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace DiplomAPI.Models.UserModels
 {
     public class UserKabinetService
     {
-        public UserKabinetService() 
+        private readonly IConfiguration _configuration;
+        public UserKabinetService(IConfiguration configuration) 
         {
-            
+            _configuration = configuration;
         }
 
         public async Task<double> _UpdateMoneu(int id, double sum, int vector)
         {
-            using (var context = new dbContact())
+            using (var context = new dbContact(_configuration))
             {
                 var targetUser = await context.User.FindAsync(id);
                 if (vector == 1) targetUser.Maney -= sum;
@@ -25,7 +27,7 @@ namespace DiplomAPI.Models.UserModels
         }
         public async Task<User?> UserMoneyLoadAsync(int id)
         {
-            using (var context = new dbContact())
+            using (var context = new dbContact(_configuration))
             {
                 return await context.User.FindAsync(id);
             }
@@ -36,7 +38,7 @@ namespace DiplomAPI.Models.UserModels
 
         public async Task<List<InvestTools>> AllToolsLoadAsync()
         {
-            using (var context = new dbContact())
+            using (var context = new dbContact(_configuration))
             {
                 var allTools = await context.InvestTools.Include(x => x.Brokers).ToListAsync();
 
@@ -54,7 +56,7 @@ namespace DiplomAPI.Models.UserModels
 
         public async Task<List<Portfolio>> UserSToolsAsync(int id)
         {
-            using (var context = new dbContact())
+            using (var context = new dbContact(_configuration))
             {
                 var UTools = await context.Portfolio.Include(x => x.InvestTool).Where(x => x.UserId == id).ToListAsync();
                 List<Portfolio> list = new List<Portfolio>();
@@ -81,7 +83,7 @@ namespace DiplomAPI.Models.UserModels
             List<string[]> statisticList = new List<string[]>();
             List<Portfolio> ports = new List<Portfolio>();
 
-            using (var conext = new dbContact())
+            using (var conext = new dbContact(_configuration))
             {
 
                 // рассчет доходности по всему портфелю
@@ -157,7 +159,7 @@ namespace DiplomAPI.Models.UserModels
         {
             List<string[]> strings = new List<string[]>();
             string[] record = new string[2]; // 0 - брокер; 1 - деньги
-            using (var context = new dbContact())
+            using (var context = new dbContact(_configuration))
             {
                 var allBrokers = await context.Brokers.ToListAsync();
 

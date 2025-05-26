@@ -1,4 +1,5 @@
-﻿using DiplomAPI.Data;
+﻿using System.Text;
+using DiplomAPI.Data;
 using DiplomAPI.Models.Support;
 using Finansu.Model;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -11,13 +12,14 @@ namespace DiplomAPI.Controllers
     [Controller]
     public class UniversalController : ControllerBase
     {
-        private static readonly MailSupport _mailSupport = new MailSupport();
+        private readonly MailSupport _mailSupport;
         private static readonly Imageporter _imageporter = new Imageporter();
-        private readonly IConfiguration _configuration;
+        private static IConfiguration _configuration;
 
         public UniversalController(IConfiguration configuration)
         {
             _configuration = configuration;
+            _mailSupport = new MailSupport(_configuration);
         }
 
         [HttpPost("SendCode")]
@@ -37,7 +39,7 @@ namespace DiplomAPI.Controllers
         [HttpPost("ValidationINN")]
         public async Task<ActionResult<bool>> ValidationINN([FromBody] MailRequest request)
         {
-            using (var context = new dbContact())
+            using (var context = new dbContact(_configuration))
             {
                 var testData = await context.Brokers.FirstOrDefaultAsync(x => x.INN.ToString() == request.ToMail);
                 if (testData != null) return Ok(1);
@@ -50,7 +52,7 @@ namespace DiplomAPI.Controllers
         {
             try
             {
-                using (var context = new dbContact())
+                using (var context = new dbContact(_configuration))
                 {
                     var tool = context.InvestTools.Find(idTool.id);
                     tool.ImageSource = _imageporter.porter(tool.ImageSource);
@@ -70,11 +72,13 @@ namespace DiplomAPI.Controllers
         {
             try
             {
-                using (var context = new dbContact())
+                
+                using (var context = new dbContact(_configuration))
                 {
                     var testData = await context.Brokers.FirstOrDefaultAsync(x=> x.INN.ToString() == request.INN);
                     if (testData != null) return Ok(1);
 
+                    
 
                     Brokers brokers = new Brokers()
                     {
@@ -100,8 +104,9 @@ namespace DiplomAPI.Controllers
             }
             
         }
+        
 
-        private async Task<string> UploadFile(IFormFile file)
+        static private async Task<string> UploadFile(IFormFile file)
         {
             var desktopPath = _configuration["UploadFile:Broker"];
             string targetPath;

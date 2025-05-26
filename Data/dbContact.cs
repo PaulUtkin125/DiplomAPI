@@ -6,6 +6,13 @@ namespace DiplomAPI.Data
 {
     internal class dbContact : DbContext
     {
+        private IConfiguration _configuration;
+        
+        public dbContact(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
+
         public DbSet<DvizhenieSredstv> dvizhenieSredstvs { get; set; }
         public DbSet<InvestTools> InvestTools { get; set; }
         public DbSet<Brokers> Brokers { get; set; }
@@ -18,8 +25,9 @@ namespace DiplomAPI.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=FinanceManagerdb;Integrated Security=True;Connect Timeout=30;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False");
+            optionsBuilder.UseSqlServer(_configuration["Database:defaultPath"]);
         }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

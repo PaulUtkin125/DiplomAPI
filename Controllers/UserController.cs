@@ -15,10 +15,11 @@ namespace DiplomAPI.Controllers
     public class UserController : ControllerBase
     {
         private readonly UserKabinetService _userKabinetService;
-
-        public UserController()
+        private static IConfiguration _configuration;
+        public UserController(IConfiguration configuration)
         {
-            _userKabinetService = new UserKabinetService();
+            _userKabinetService = new UserKabinetService(_configuration);
+            _configuration = configuration;
         }
 
         [HttpPost]
@@ -68,7 +69,7 @@ namespace DiplomAPI.Controllers
         [HttpPost("BueMethod")]
         public async Task<ActionResult<int>> Byu([FromBody]BuySuppoprt buySuppoprt)
         {
-            using (var context = new dbContact())
+            using (var context = new dbContact(_configuration))
             {
                 var user_Exist = await context.User.FindAsync(buySuppoprt.uId);
                 if (buySuppoprt.Price < 0) user_Exist.Maney = Math.Round(user_Exist.Maney - buySuppoprt.Price * buySuppoprt.Quentity, 2);

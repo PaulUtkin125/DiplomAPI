@@ -13,16 +13,17 @@ namespace DiplomAPI.Controllers
     public class LogoController : ControllerBase
     {
         private readonly UserLogoService _userLogoService;
-
-        public LogoController()
+        private static IConfiguration _configuration;
+        public LogoController(IConfiguration configuration)
         {
-            _userLogoService = new UserLogoService();
+            _configuration = configuration;
+            _userLogoService = new UserLogoService(_configuration);
         }
 
         [HttpPost("validationMail")]
         public async Task<ActionResult<bool>> Post_validationMail([FromBody] MailRequest request)
         {
-            using (var context = new dbContact())
+            using (var context = new dbContact(_configuration))
             {
                 var user_Exist = await context.User.FirstOrDefaultAsync(x => x.Loggin == request.ToMail);
                 if (user_Exist != null)
@@ -36,7 +37,7 @@ namespace DiplomAPI.Controllers
         [HttpPost("validationBrokerMail")]
         public async Task<ActionResult<bool>> validationBrokerMail([FromBody] MailRequest request)
         {
-            using (var context = new dbContact())
+            using (var context = new dbContact(_configuration))
             {
                 var user_Exist = await context.Brokers.FirstOrDefaultAsync(x => x.Email == request.ToMail);
                 if (user_Exist != null)
@@ -68,6 +69,14 @@ namespace DiplomAPI.Controllers
         public async Task<ActionResult<int>> Post_AdminAutorisation([FromBody] StartUserData user)
         {
             int? resalt = await _userLogoService.AdminAutorisationAsync(user.Login, user.Password);
+            if (resalt != null) return Ok(resalt);
+            else return BadRequest(0);
+        }
+
+        [HttpPost("AutorisationBroker")]
+        public async Task<ActionResult<int>> AutorisationBroker([FromBody] StartUserData user)
+        {
+            int? resalt = await _userLogoService.BrokerAutorisationAsync(user.Login, user.Password);
             if (resalt != null) return Ok(resalt);
             else return BadRequest(0);
         }
