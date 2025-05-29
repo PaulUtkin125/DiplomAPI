@@ -1,4 +1,5 @@
 ﻿using DiplomAPI.Data;
+using DiplomAPI.Models.db;
 using Finansu.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,9 +19,20 @@ namespace DiplomAPI.Models.UserModels
         {
             using (var context = new dbContact(_configuration))
             {
+                if (vector == 1) sum = -sum;
+
                 var targetUser = await context.User.FindAsync(id);
-                if (vector == 1) targetUser.Maney -= sum;
-                else targetUser.Maney += sum;
+                targetUser.Maney += sum;
+
+
+                // vector = 1 => -sum
+                BalanceHistory balanceHistory = new BalanceHistory()
+                {
+                    UserId = id,
+                    Money = sum,
+                };
+                context.BalanceHistory.Add(balanceHistory);
+
                 context.SaveChanges();
                 return targetUser.Maney;
             }
@@ -40,7 +52,7 @@ namespace DiplomAPI.Models.UserModels
         {
             using (var context = new dbContact(_configuration))
             {
-                var allTools = await context.InvestTools.Include(x => x.Brokers).ToListAsync();
+                var allTools = await context.InvestTools.Include(x => x.Brokers).Where(x => x.isClosed != true && x.isFrozen != true).ToListAsync();
 
                 List<InvestTools> list = new List<InvestTools>();
                 foreach (var investTool in allTools) 

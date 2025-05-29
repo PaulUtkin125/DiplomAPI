@@ -13,13 +13,14 @@ namespace DiplomAPI.Controllers
     public class UniversalController : ControllerBase
     {
         private readonly MailSupport _mailSupport;
-        private static readonly Imageporter _imageporter = new Imageporter();
+        private static Imageporter _imageporter;
         private static IConfiguration _configuration;
 
         public UniversalController(IConfiguration configuration)
         {
             _configuration = configuration;
             _mailSupport = new MailSupport(_configuration);
+            _imageporter = new Imageporter(_configuration);
         }
 
         [HttpPost("SendCode")]
@@ -85,7 +86,7 @@ namespace DiplomAPI.Controllers
                         NameBroker = request.NameBroker,
                         FullNameOfTheDirector = request.FullNameOfTheDirector,
                         UrisidikciiyId = request.UrisidikciiyId,
-                        SourseFile = await UploadFile(request.file),
+                        SourseFile = await _imageporter.UploadFile(request.file, 1),
                         INN = long.Parse(request.INN),
                         KPP = long.Parse(request.KPP),
                         OKTMO = long.Parse(request.OKTMO),
@@ -95,6 +96,8 @@ namespace DiplomAPI.Controllers
                     };
                     context.Brokers.Add(brokers);
                     context.SaveChanges();
+
+                    _mailSupport.BrokerSelfRegistration(request.Email);
                 }
                 return Ok(0);
             }
@@ -106,27 +109,6 @@ namespace DiplomAPI.Controllers
         }
         
 
-        static private async Task<string> UploadFile(IFormFile file)
-        {
-            var desktopPath = _configuration["UploadFile:Broker"];
-            string targetPath;
-            if (file == null || file.Length == 0)
-            {
-                targetPath = Path.Combine(desktopPath, _configuration["UploadFile:Support"]+ "\\NoNPhoto.png"); 
-            }
-            else 
-            {
-                targetPath = Path.Combine(desktopPath, file.FileName);
-                using (var stream = new FileStream(targetPath, FileMode.Create))
-                {
-                    await file.CopyToAsync(stream);
-                }
-            }
-
-            
-
-            
-            return targetPath;
-        }
+        
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Azure.Core;
 using DiplomAPI.Data;
+using DiplomAPI.Models.db;
 using DiplomAPI.Models.Support;
 using Finansu.Model;
 using Microsoft.AspNetCore.Mvc;
@@ -11,12 +12,13 @@ namespace DiplomAPI.Controllers
     [Controller]
     public class BrokerController : ControllerBase
     {
-        private static readonly Imageporter _imageporter = new Imageporter();
+        private static Imageporter _imageporter;
         private static IConfiguration _configuration;
 
         public BrokerController(IConfiguration configuration)
         {
             _configuration = configuration;
+            _imageporter = new Imageporter(_configuration);
         }
 
         [HttpPost("BrokerData")]
@@ -89,5 +91,112 @@ namespace DiplomAPI.Controllers
             }
         }
 
+        [HttpPut("CreateTool")]
+        public async Task<ActionResult> CreateTool([FromForm]CreateInvestToolSupport request)
+        {
+            try
+            {
+                using (var context = new dbContact(_configuration))
+                {
+                    InvestTools investTools = new()
+                    {
+                        BrokersId = int.Parse(request.BrokersId),
+                        NameInvestTool = request.NameInvestTool,
+                        Price = double.Parse(request.Price),
+                        ImageSource = await _imageporter.UploadFile(request.file, 2)
+                    };
+                    context.InvestTools.Add(investTools);
+                    context.SaveChanges();
+
+                    return Ok();
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+        }
+
+        [HttpPatch("UpdateTool")]
+        public async Task<ActionResult> UpdateToolAsync([FromForm] UpdateToolRequest request)
+        {
+            try
+            {
+                using (var context = new dbContact(_configuration))
+                {
+                    
+                    var tool_Exist = await context.InvestTools.FindAsync(request.id);
+
+                    if (!string.IsNullOrWhiteSpace(request.name)
+                        && request.name != tool_Exist.NameInvestTool) tool_Exist.NameInvestTool = request.name;
+
+                    if (request.file != null) tool_Exist.ImageSource = await _imageporter.UploadFile(request.file, 2);
+
+                    context.Entry(tool_Exist).State = EntityState.Modified;
+                    context.SaveChanges();
+
+                    return Ok();
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+        }
+
+        [HttpPatch("DeleteTool")]
+        public async Task<ActionResult> DeleteToolAsync([FromBody] ToolRequest request)
+        {
+            try
+            {
+                using (var context = new dbContact(_configuration))
+                {
+
+                    var tool_Exist = await context.InvestTools.FindAsync(request.id);
+
+                    InvestTools ExitedTool = context.InvestTools.FirstOrDefault(x => x.Id == request.id);
+
+                    ExitedTool.isClosed = true;
+
+                    context.Entry(ExitedTool).State = EntityState.Modified;
+
+
+                    var PortfolioRecordsToRemove = context.Portfolio
+                        .Where(x => x.InvestToolId == ExitedTool.Id)
+                        .ToList();
+
+                    foreach (var targetPortfolioRecord in PortfolioRecordsToRemove)
+                    {
+                        if (targetPortfolioRecord == null) continue;
+
+                        if (targetPortfolioRecord.InvestToolId == ExitedTool.Id)
+                        {
+                            DvizhenieSredstv newMoveMoney = new()
+                            {
+                                InvestToolsId = ExitedTool.Id,
+                                UserId = targetPortfolioRecord.UserId,
+                                Money = -targetPortfolioRecord.AllManey
+                            };
+                            context.dvizhenieSredstvs.Add(newMoveMoney);
+
+
+                            var targetUser = context.User.FirstOrDefault(x => x.Id == targetPortfolioRecord.UserId);
+                            targetUser.Maney += targetPortfolioRecord.AllManey;
+                            context.Entry(targetUser).State = EntityState.Modified;
+
+
+                            context.Entry(targetPortfolioRecord).State = EntityState.Deleted;
+                            
+                        }
+                    }
+                    context.SaveChanges();
+                    return Ok();
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+        }
     }
 }

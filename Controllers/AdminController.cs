@@ -14,13 +14,14 @@ namespace DiplomAPI.Controllers
     public class AdminController : ControllerBase
     {
         private readonly MailSupport _mailSupport;
-        private static readonly Imageporter _imageporter = new Imageporter();
+        private static Imageporter _imageporter;
         private static IConfiguration _configuration;
 
         public AdminController(IConfiguration configuration) 
         {
             _configuration = configuration;
             _mailSupport = new MailSupport(_configuration);
+            _imageporter = new Imageporter(_configuration);
         }
 
         [HttpGet("NewBrokersList")]
@@ -216,5 +217,6 @@ namespace DiplomAPI.Controllers
                 return BadRequest(ex);
             }
         }
+
     }
 }

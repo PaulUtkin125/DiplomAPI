@@ -45,6 +45,14 @@ namespace DiplomAPI.Models.Support
             SendEmail(toEmail, subject, body);
         }
 
+        public void BrokerSelfRegistration(string toEmail)
+        {
+            string subject = "Регистрация в «Finance manager»";
+            string body = $"Добрый день!\r\n\r\n" +
+                          "Ваша заявка на регистрацию в «Finance manager» принята на рассмотрение";
+
+            SendEmail(toEmail, subject, body);
+        }
 
         private void SendEmail(string toEmail, string subject, string body)
         {

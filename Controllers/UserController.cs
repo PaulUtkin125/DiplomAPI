@@ -18,8 +18,8 @@ namespace DiplomAPI.Controllers
         private static IConfiguration _configuration;
         public UserController(IConfiguration configuration)
         {
-            _userKabinetService = new UserKabinetService(_configuration);
             _configuration = configuration;
+            _userKabinetService = new UserKabinetService(_configuration);
         }
 
         [HttpPost]
@@ -58,6 +58,39 @@ namespace DiplomAPI.Controllers
             return Ok(resalt);
         }
 
+        [HttpPost("LoadBalanceHistory")]
+        public async Task<ActionResult<List<DvizhenieSredstv>>> LoadBalanceHistory([FromBody]ToolRequest request)
+        {
+            try
+            {
+                using (var context = new dbContact(_configuration))
+                {
+                    var muveOfMoney = await context.dvizhenieSredstvs.Include(x => x.InvestTools).Where(x => x.UserId == request.id).ToListAsync();
+                    var balaceHistory = await context.BalanceHistory.Where(x => x.UserId == request.id).ToListAsync();
+
+                    foreach (var record in balaceHistory)
+                    {
+                        DvizhenieSredstv dvizhenieSredstv = new()
+                        {
+                            InvestToolsId = 0,
+                            UserId = record.UserId,
+                            Money = record.Money,
+                            Quentity = 0,
+                            Date = record.Date,
+                        };
+                        muveOfMoney.Add(dvizhenieSredstv);
+                        muveOfMoney = muveOfMoney.OrderByDescending(x => x.Date).ToList();
+                    }
+                    return Ok(muveOfMoney);
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+
+            
+        }
 
         [HttpPost("updateMoneu")]
         public async Task<ActionResult<User>> UpdateMoneu([FromBody]MoneuUpdate moneuUpdate)
@@ -90,7 +123,7 @@ namespace DiplomAPI.Controllers
                 context.dvizhenieSredstvs.Add(newRecord);
 
                 Portfolio portflio_Existing = context.Portfolio.FirstOrDefault(x => x.UserId == buySuppoprt.uId && x.InvestToolId == buySuppoprt.toolId);
-                portflio_Existing.AllManey = Math.Round(portflio_Existing.AllManey + buySuppoprt.Price, 2);
+                portflio_Existing.AllManey = Math.Round(portflio_Existing.AllManey + (buySuppoprt.Price*buySuppoprt.Quentity), 2);
 
                 if (buySuppoprt.Price < 0) portflio_Existing.Quentity -= buySuppoprt.Quentity;
                 else portflio_Existing.Quentity += buySuppoprt.Quentity;

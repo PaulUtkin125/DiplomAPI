@@ -1,4 +1,5 @@
 ﻿using Diplom_Utkin.Model.DataBase;
+using DiplomAPI.Models.db;
 using Finansu.Model;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,6 +23,8 @@ namespace DiplomAPI.Data
         public DbSet<User> User { get; set; }
         public DbSet<Portfolio> Portfolio { get; set; }
         public DbSet<TypeOfRequest> TypeRequest { get; set; }
+        public DbSet<BalanceHistory> BalanceHistory { get; set; }
+        public DbSet<News> News { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

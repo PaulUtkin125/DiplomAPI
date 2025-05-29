@@ -8,11 +8,11 @@
         public int BrokersId { get; set; }
 
         public string NameInvestTool { get; set; }
-        public bool isClosed { get; set; }
+        public bool isClosed { get; set; } = false;
 
-        public bool isFrozen { get; set; }
+        public bool isFrozen { get; set; } = false;
 
-        public string Price { get; set; }
+        public double Price { get; set; }
         public string ImageSource { get; set; }
 
     }

@@ -12,6 +12,21 @@ namespace DiplomAPI.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "News",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    HeadLine = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Body = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_News", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "typeOfUser",
                 columns: table => new
                 {
@@ -93,7 +108,8 @@ namespace DiplomAPI.Migrations
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     isAdmitted = table.Column<bool>(type: "bit", nullable: false),
                     dateSubmitted = table.Column<DateOnly>(type: "date", nullable: false),
-                    TypeOfRequestId = table.Column<int>(type: "int", nullable: false)
+                    TypeOfRequestId = table.Column<int>(type: "int", nullable: false),
+                    Password = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -113,6 +129,27 @@ namespace DiplomAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "BalanceHistory",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    Money = table.Column<double>(type: "float", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BalanceHistory", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_BalanceHistory_User_UserId",
+                        column: x => x.UserId,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "InvestTools",
                 columns: table => new
                 {
@@ -122,7 +159,7 @@ namespace DiplomAPI.Migrations
                     NameInvestTool = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     isClosed = table.Column<bool>(type: "bit", nullable: false),
                     isFrozen = table.Column<bool>(type: "bit", nullable: false),
-                    Price = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Price = table.Column<double>(type: "float", nullable: false),
                     ImageSource = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
@@ -221,6 +258,11 @@ namespace DiplomAPI.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_BalanceHistory_UserId",
+                table: "BalanceHistory",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Brokers_TypeOfRequestId",
                 table: "Brokers",
                 column: "TypeOfRequestId");
@@ -270,10 +312,16 @@ namespace DiplomAPI.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "BalanceHistory");
+
+            migrationBuilder.DropTable(
                 name: "dvizhenieSredstvs");
 
             migrationBuilder.DropTable(
                 name: "InvestToolHistory");
+
+            migrationBuilder.DropTable(
+                name: "News");
 
             migrationBuilder.DropTable(
                 name: "Portfolio");
