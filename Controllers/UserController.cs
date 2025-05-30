@@ -104,6 +104,11 @@ namespace DiplomAPI.Controllers
         {
             using (var context = new dbContact(_configuration))
             {
+                var user_Exist1 = await context.User.FindAsync(buySuppoprt.uId);
+
+                double sum;
+
+
                 var user_Exist = await context.User.FindAsync(buySuppoprt.uId);
                 if (buySuppoprt.Price < 0) user_Exist.Maney = Math.Round(user_Exist.Maney - buySuppoprt.Price * buySuppoprt.Quentity, 2);
                 else user_Exist.Maney = Math.Round(user_Exist.Maney - buySuppoprt.Price * buySuppoprt.Quentity, 2);
@@ -121,12 +126,31 @@ namespace DiplomAPI.Controllers
                     UserId = buySuppoprt.uId
                 };
                 context.dvizhenieSredstvs.Add(newRecord);
+                context.SaveChanges();
 
                 Portfolio portflio_Existing = context.Portfolio.FirstOrDefault(x => x.UserId == buySuppoprt.uId && x.InvestToolId == buySuppoprt.toolId);
-                portflio_Existing.AllManey = Math.Round(portflio_Existing.AllManey + (buySuppoprt.Price*buySuppoprt.Quentity), 2);
+                if (portflio_Existing == null)
+                {
+                    sum = Math.Round((buySuppoprt.Price * buySuppoprt.Quentity), 2);
+                    Portfolio portfolio = new Portfolio()
+                    {
+                        InvestToolId = buySuppoprt.toolId,
+                        UserId = buySuppoprt.uId,
+                        AllManey = sum,
+                        Quentity = buySuppoprt.Quentity
+                    };
+                    context.Portfolio.Add(portfolio);
+                    context.SaveChanges();
+                    portflio_Existing = context.Portfolio.FirstOrDefault(x => x.UserId == buySuppoprt.uId && x.InvestToolId == buySuppoprt.toolId);
+                }
+                else 
+                {
+                    portflio_Existing.AllManey = Math.Round(portflio_Existing.AllManey + (buySuppoprt.Price * buySuppoprt.Quentity), 2);
 
-                if (buySuppoprt.Price < 0) portflio_Existing.Quentity -= buySuppoprt.Quentity;
-                else portflio_Existing.Quentity += buySuppoprt.Quentity;
+                    if (buySuppoprt.Price < 0) portflio_Existing.Quentity -= buySuppoprt.Quentity;
+                    else portflio_Existing.Quentity += buySuppoprt.Quentity;
+                }
+                
 
 
 
