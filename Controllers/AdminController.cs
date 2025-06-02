@@ -1,7 +1,10 @@
 ﻿using System.Text;
 using Azure.Core;
+using Diplom_Utkin.Model.DataBase;
 using Diplom_Utkin.Model.Support;
 using DiplomAPI.Data;
+using DiplomAPI.Models.db;
+using DiplomAPI.Models.Reports;
 using DiplomAPI.Models.Support;
 using Finansu.Model;
 using Microsoft.AspNetCore.Mvc;
@@ -47,7 +50,7 @@ namespace DiplomAPI.Controllers
         {
             using (var context = new dbContact(_configuration))
             {
-                var Broker = await context.Brokers.Include(x => x.Urisidikciiy).Include(x => x.TypeOfRequest).Where(x => x.TypeOfRequestId != 1).ToListAsync();
+                var Broker = await context.Brokers.Include(x => x.Urisidikciiy).Include(x => x.TypeOfRequest).ToListAsync();
                 foreach (var item in Broker)
                 {
                     if (item.SourseFile != "")
@@ -95,6 +98,26 @@ namespace DiplomAPI.Controllers
                         broker_Exist.TypeOfRequestId = 3;
                     }
                     context.Entry(broker_Exist).State = EntityState.Modified;
+
+                    ApplicationHistory applicationHistory = new ApplicationHistory()
+                    {
+                        mainId = broker_Exist.Id,
+                        UrisidikciiyId = broker_Exist.UrisidikciiyId,
+                        NameBroker = broker_Exist.NameBroker,
+                        SourseFile = broker_Exist.SourseFile,
+                        IsClosing = broker_Exist.IsClosing,
+                        FullNameOfTheDirector = broker_Exist.FullNameOfTheDirector,
+                        INN = broker_Exist.INN,
+                        KPP = broker_Exist.KPP,
+                        OKTMO = broker_Exist.OKTMO,
+                        BusinessAddress = broker_Exist.BusinessAddress,
+                        Phone = broker_Exist.Phone,
+                        Email = broker_Exist.Email,
+                        TypeOfRequestId = broker_Exist.TypeOfRequestId,
+                        Password = broker_Exist.Password
+                    };
+                    context.ApplicationHistory.Add(applicationHistory);
+
                     context.SaveChanges();
                 }
                 return Ok();
@@ -218,5 +241,109 @@ namespace DiplomAPI.Controllers
             }
         }
 
+
+        [HttpPost("ReportObiemOperationofBroker")]
+        public async Task<ActionResult<List<Repport1Model>>> ReportObiemOperationofBroker([FromBody]Report1Reauest request)
+        {
+            try
+            {
+
+                using (var context = new dbContact(_configuration))
+                {
+                    var brokerSupport = await context.Brokers.ToListAsync();
+                    var allOparatoins = context.dvizhenieSredstvs.Include(x => x.InvestTools.Brokers).Where(x => x.Date >= request.startDate && x.Date <= request.endDate);
+                    if (allOparatoins is null) return BadRequest(1);
+
+                    var usedBrokerId = allOparatoins.Select(x => x.InvestTools.BrokersId).ToList();
+
+                    double sumPokupki = 0;
+                    double summProdazhi = 0;
+
+                    List<Repport1Model> report1Reauests = new List<Repport1Model>();
+
+                    foreach (var item in brokerSupport)
+                    {
+                        if (!usedBrokerId.Contains(item.Id)) continue;
+
+                        summProdazhi = Math.Round(allOparatoins.Where(x => x.InvestTools.BrokersId == item.Id && x.Money < 0).Sum(x => x.Quentity * x.Money), 2);
+                        sumPokupki = Math.Round(allOparatoins.Where(x => x.InvestTools.BrokersId == item.Id && x.Money > 0).Sum(x => x.Quentity * x.Money), 2);
+
+                        Repport1Model report1Reauest = new Repport1Model()
+                        {
+                            BrokerName = item.NameBroker,
+                            sumPokupokClientov = sumPokupki,
+                            sumProdazhClientov = summProdazhi
+                        };
+                        report1Reauests.Add(report1Reauest);
+                    }
+                    return Ok(report1Reauests);
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+        }
+        [HttpPost("ReportStatysBroker")]
+        public async Task<ActionResult<List<AltBrokers>>> ReportStatysBroker([FromBody] Report1Reauest request)
+        {
+            try
+            {
+
+                using (var context = new dbContact(_configuration))
+                {
+                    var brokers = await context.ApplicationHistory
+                            .Where(x => x.dateEdit >= DateOnly.FromDateTime(request.startDate) && x.dateEdit <= DateOnly.FromDateTime(request.endDate))
+                            .OrderByDescending(x => x.dateEdit).ToListAsync();
+
+                    var typeIds = brokers.Select(b => b.TypeOfRequestId).Distinct().ToList();
+
+                    // Загрузим названия типов заявок по их Id
+                    var typesDict = await context.TypeRequest
+                        .Where(t => typeIds.Contains(t.Id))
+                        .ToDictionaryAsync(t => t.Id, t => t.Name);
+
+
+                    TypeOfRequest typeOfRequest;
+                    List<AltBrokers> brokersList = new List<AltBrokers>();
+                    foreach (var item in brokers)
+                    {
+                        if (brokersList.FirstOrDefault(x => x.Id == item.mainId) == null)
+                        {
+
+                            AltBrokers brokers1 = new AltBrokers()
+                            {
+                                Id = item.mainId,
+                                NameBroker = item.NameBroker,
+                                SourseFile = item.SourseFile,
+                                IsClosing = item.IsClosing,
+                                FullNameOfTheDirector = item.FullNameOfTheDirector,
+                                INN = item.INN,
+                                KPP = item.KPP,
+                                OKTMO = item.OKTMO,
+                                Phone = item.Phone,
+                                BusinessAddress = item.BusinessAddress,
+                                Email = item.Email,
+                                isAdmitted = item.isAdmitted,
+                                dateSubmitted = item.dateSubmitted,
+                                TypeOfRequest = typesDict.ContainsKey(item.TypeOfRequestId) ? typesDict[item.TypeOfRequestId] : "Неизвестно",
+                                Password = item.Password
+                            };
+                            brokersList.Add(brokers1);
+                        }
+                    }
+
+                    return Ok(brokersList);
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+        }
     }
 }

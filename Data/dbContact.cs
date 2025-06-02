@@ -25,6 +25,7 @@ namespace DiplomAPI.Data
         public DbSet<TypeOfRequest> TypeRequest { get; set; }
         public DbSet<BalanceHistory> BalanceHistory { get; set; }
         public DbSet<News> News { get; set; }
+        public DbSet<ApplicationHistory> ApplicationHistory { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

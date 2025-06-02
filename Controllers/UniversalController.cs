@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using DiplomAPI.Data;
+using DiplomAPI.Models.db;
 using DiplomAPI.Models.Support;
 using Finansu.Model;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -95,6 +96,27 @@ namespace DiplomAPI.Controllers
                         Email = request.Email
                     };
                     context.Brokers.Add(brokers);
+                    var newBroker = await context.Brokers.FirstAsync(x => x.Email == request.Email);
+
+                    ApplicationHistory applicationHistory = new ApplicationHistory()
+                    {
+                        mainId = newBroker.Id,
+                        UrisidikciiyId = newBroker.UrisidikciiyId,
+                        NameBroker = newBroker.NameBroker,
+                        SourseFile = newBroker.SourseFile,
+                        IsClosing = newBroker.IsClosing,
+                        FullNameOfTheDirector = newBroker.FullNameOfTheDirector,
+                        INN = newBroker.INN,
+                        KPP = newBroker.KPP,
+                        OKTMO = newBroker.OKTMO,
+                        BusinessAddress = newBroker.BusinessAddress,
+                        Phone = newBroker.Phone,
+                        Email = newBroker.Email,
+                        TypeOfRequestId = newBroker.TypeOfRequestId,
+                        Password = newBroker.Password
+                    };
+
+                    context.ApplicationHistory.Add(applicationHistory);
                     context.SaveChanges();
 
                     _mailSupport.BrokerSelfRegistration(request.Email);

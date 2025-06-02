@@ -4,6 +4,7 @@ using DiplomAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DiplomAPI.Migrations
 {
     [DbContext(typeof(dbContact))]
-    partial class dbContactModelSnapshot : ModelSnapshot
+    [Migration("20250602165413_apdateDatabase1")]
+    partial class apdateDatabase1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -78,14 +81,8 @@ namespace DiplomAPI.Migrations
                     b.Property<DateOnly>("dateEdit")
                         .HasColumnType("date");
 
-                    b.Property<DateOnly>("dateSubmitted")
-                        .HasColumnType("date");
-
                     b.Property<bool>("isAdmitted")
                         .HasColumnType("bit");
-
-                    b.Property<int>("mainId")
-                        .HasColumnType("int");
 
                     b.Property<TimeOnly>("timeEdit")
                         .HasColumnType("time");
