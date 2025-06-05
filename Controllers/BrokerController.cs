@@ -66,7 +66,7 @@ namespace DiplomAPI.Controllers
         }
 
         [HttpPatch("UpdateData")]
-        public async Task<ActionResult> UpdateDataAsync([FromBody]Brokers request)
+        public async Task<ActionResult<int>> UpdateDataAsync([FromBody]Brokers request)
         {
             try
             {
@@ -82,7 +82,7 @@ namespace DiplomAPI.Controllers
                     context.Entry(user_Exist).State = EntityState.Modified;
                     context.SaveChanges();
 
-                    return Ok();
+                    return Ok(1);
                 }
             }
             catch (Exception ex)
@@ -103,7 +103,8 @@ namespace DiplomAPI.Controllers
                         BrokersId = int.Parse(request.BrokersId),
                         NameInvestTool = request.NameInvestTool,
                         Price = double.Parse(request.Price),
-                        ImageSource = await _imageporter.UploadFile(request.file, 2)
+                        ImageSource = await _imageporter.UploadFile(request.file, 2),
+                        TypeTool = request.TypeTool
                     };
                     context.InvestTools.Add(investTools);
                     context.SaveChanges();

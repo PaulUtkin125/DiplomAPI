@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DiplomAPI.Migrations
 {
     [DbContext(typeof(dbContact))]
-    [Migration("20250529180001_startPoint")]
-    partial class startPoint
+    [Migration("20250603113308_stsrtPoint")]
+    partial class stsrtPoint
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,79 @@ namespace DiplomAPI.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("DiplomAPI.Models.db.ApplicationHistory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("BusinessAddress")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FullNameOfTheDirector")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("INN")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsClosing")
+                        .HasColumnType("bit");
+
+                    b.Property<long>("KPP")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("NameBroker")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("OKTMO")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Password")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SourseFile")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TypeOfRequestId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UrisidikciiyId")
+                        .HasColumnType("int");
+
+                    b.Property<DateOnly>("dateEdit")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly>("dateSubmitted")
+                        .HasColumnType("date");
+
+                    b.Property<bool>("isAdmitted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("mainId")
+                        .HasColumnType("int");
+
+                    b.Property<TimeOnly>("timeEdit")
+                        .HasColumnType("time");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ApplicationHistory");
+                });
 
             modelBuilder.Entity("DiplomAPI.Models.db.BalanceHistory", b =>
                 {
@@ -243,6 +316,10 @@ namespace DiplomAPI.Migrations
 
                     b.Property<double>("Price")
                         .HasColumnType("float");
+
+                    b.Property<string>("TypeTool")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("isClosed")
                         .HasColumnType("bit");

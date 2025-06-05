@@ -166,6 +166,88 @@ namespace DiplomAPI.Models.UserModels
                 return resalt;
             }
         }
+        public async Task<double> Calculate(int id, DateTime? dateStart, DateTime? dateFinish, int toolId)
+        {
+            DateTime dateSt = dateStart.Value;
+            DateTime dateFin = dateFinish.Value;
+            bool svStart = false;
+            bool svEnd = false;
+            string[] mas = new string[2];  // 1 - название брокера; 2 - рамер прибыли
+            List<string[]> statisticList = new List<string[]>();
+            List<Portfolio> ports = new List<Portfolio>();
+
+            using (var conext = new dbContact(_configuration))
+            {
+
+                var moveStartInvestToolExist = conext.InvestToolHistory
+                               .Where(x => x.DataIzmrneniiy.Date == dateSt.Date && x.UserId == id && x.InvestToolsId == toolId).ToList();
+
+                var moveFinishInvestToolExist = conext.InvestToolHistory
+                               .Where(x => x.DataIzmrneniiy.Date == dateFin.Date && x.UserId == id && x.InvestToolsId == toolId).ToList();
+
+
+                for (int i = 0; i < 5; i++)
+                {
+                    if (moveStartInvestToolExist.Count == 0)
+                    {
+                        dateSt = dateSt.AddDays(1);
+                        moveStartInvestToolExist = conext.InvestToolHistory
+                               .Where(x => x.DataIzmrneniiy.Date == dateSt.Date && x.UserId == id && x.InvestToolsId == toolId).ToList();
+                    }
+                    else
+                    {
+                        svStart = true;
+                        break;
+                    }
+                }
+
+
+                for (int i = 0; i < 5; i++)
+                {
+                    if (moveFinishInvestToolExist.Count == 0)
+                    {
+                        dateFin = dateFin.AddDays(1);
+                        moveFinishInvestToolExist = conext.InvestToolHistory
+                               .Where(x => x.DataIzmrneniiy.Date == dateFin.Date && x.UserId == id && x.InvestToolsId == toolId).ToList();
+                    }
+                    else
+                    {
+                        svEnd = true;
+                        break;
+                    }
+                }
+                if (!svEnd)
+                {
+                    return 0.0;
+                }
+
+
+                dateSt = dateStart.Value.AddDays(1);
+                dateFin = dateFinish.Value;
+
+
+
+                double vvodSum = conext.dvizhenieSredstvs.Where(x => x.Money > 0 && x.Date >= dateSt && x.Date <= dateFin && x.UserId == id && x.InvestToolsId == toolId).Select(x => x.Money * x.Quentity).Sum();
+                double vuvodSum = Math.Abs(conext.dvizhenieSredstvs.Where(x => x.Money < 0 && x.Date >= dateSt && x.Date <= dateFin && x.UserId == id && x.InvestToolsId == toolId).Select(x => x.Money * x.Quentity).Sum());
+
+                double startManey;
+                if (!svStart)
+                {
+                    startManey = 0;
+                }
+                else
+                {
+                    startManey = moveStartInvestToolExist.Select(x => x.Price).Sum();
+                }
+               
+                double endManey = moveFinishInvestToolExist.Select(x => x.Price).Sum();
+
+                double resalt = Math.Round((endManey - startManey + vuvodSum - vvodSum), 2);
+
+
+                return resalt;
+            }
+        }
 
         public async Task<List<string[]>?> LoadDataFormDatabaseAsync(int userId)
         {

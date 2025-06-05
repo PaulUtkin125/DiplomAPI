@@ -86,7 +86,7 @@ namespace DiplomAPI.Controllers
                     {
                         NameBroker = request.NameBroker,
                         FullNameOfTheDirector = request.FullNameOfTheDirector,
-                        UrisidikciiyId = request.UrisidikciiyId,
+                        UrisidikciiyId = 1,
                         SourseFile = await _imageporter.UploadFile(request.file, 1),
                         INN = long.Parse(request.INN),
                         KPP = long.Parse(request.KPP),
@@ -96,6 +96,7 @@ namespace DiplomAPI.Controllers
                         Email = request.Email
                     };
                     context.Brokers.Add(brokers);
+                    context.SaveChanges();
                     var newBroker = await context.Brokers.FirstAsync(x => x.Email == request.Email);
 
                     ApplicationHistory applicationHistory = new ApplicationHistory()

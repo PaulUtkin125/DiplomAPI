@@ -6,5 +6,6 @@
         public string BrokersId { get; set; }
         public string NameInvestTool { get; set; }
         public string Price { get; set; }
+        public string TypeTool { get; set; }
     }
 }

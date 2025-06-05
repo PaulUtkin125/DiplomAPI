@@ -215,7 +215,7 @@ namespace DiplomAPI.Controllers
         }
 
         [HttpPatch("updateUser")]
-        public async Task<ActionResult> updateUser([FromBody]User request)
+        public async Task<ActionResult<int>> updateUser([FromBody]User request)
         {
             try
             {
@@ -232,7 +232,7 @@ namespace DiplomAPI.Controllers
                     context.Entry(user_Exist).State = EntityState.Modified;
                     context.SaveChanges();
 
-                    return Ok();
+                    return Ok(1);
                 }
             }
             catch (Exception ex)

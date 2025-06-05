@@ -1,4 +1,6 @@
-﻿namespace Finansu.Model
+﻿using DiplomAPI.Models.db;
+
+namespace Finansu.Model
 {
     public class InvestTools
     {
@@ -14,6 +16,7 @@
 
         public double Price { get; set; }
         public string ImageSource { get; set; }
+        public string TypeTool { get; set; }
 
     }
 }
