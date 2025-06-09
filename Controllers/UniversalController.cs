@@ -1,9 +1,7 @@
-﻿using System.Text;
-using DiplomAPI.Data;
+﻿using DiplomAPI.Data;
 using DiplomAPI.Models.db;
 using DiplomAPI.Models.Support;
 using Finansu.Model;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -118,9 +116,12 @@ namespace DiplomAPI.Controllers
                     };
 
                     context.ApplicationHistory.Add(applicationHistory);
-                    context.SaveChanges();
 
                     _mailSupport.BrokerSelfRegistration(request.Email);
+
+                    context.SaveChanges();
+
+                    
                 }
                 return Ok(0);
             }

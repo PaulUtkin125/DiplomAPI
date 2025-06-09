@@ -1,7 +1,4 @@
-﻿using Diplom_Utkin.Model.DataBase;
-using Finansu.Model;
-
-namespace DiplomAPI.Models.Reports
+﻿namespace DiplomAPI.Models.Reports
 {
     public class AltBrokers
     {

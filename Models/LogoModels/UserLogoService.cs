@@ -1,7 +1,6 @@
 ﻿using DiplomAPI.Data;
 using Finansu.Model;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 namespace DiplomAPI.Models.LogoModels
 {

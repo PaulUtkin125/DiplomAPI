@@ -1,6 +1,4 @@
-﻿using Azure.Core;
-using DiplomAPI.Data;
-using DiplomAPI.Models.db;
+﻿using DiplomAPI.Data;
 using DiplomAPI.Models.Support;
 using Finansu.Model;
 using Microsoft.AspNetCore.Mvc;
@@ -197,6 +195,74 @@ namespace DiplomAPI.Controllers
             catch (Exception ex)
             {
                 return BadRequest(ex);
+            }
+        }
+        [HttpPost("DeleteToolfast")]
+        public async Task<ActionResult> DeleteToolfastAsync([FromBody] int id)
+        {
+            try
+            {
+                using (var context = new dbContact(_configuration))
+                {
+
+                    var tool_Exist = await context.InvestTools.FindAsync(id);
+
+                    InvestTools ExitedTool = context.InvestTools.FirstOrDefault(x => x.Id == id);
+
+                    ExitedTool.isClosed = true;
+
+                    context.Entry(ExitedTool).State = EntityState.Modified;
+
+
+                    var PortfolioRecordsToRemove = context.Portfolio
+                        .Where(x => x.InvestToolId == ExitedTool.Id)
+                        .ToList();
+
+                    foreach (var targetPortfolioRecord in PortfolioRecordsToRemove)
+                    {
+                        if (targetPortfolioRecord == null) continue;
+
+                        if (targetPortfolioRecord.InvestToolId == ExitedTool.Id)
+                        {
+                            DvizhenieSredstv newMoveMoney = new()
+                            {
+                                InvestToolsId = ExitedTool.Id,
+                                UserId = targetPortfolioRecord.UserId,
+                                Money = -targetPortfolioRecord.AllManey
+                            };
+                            context.dvizhenieSredstvs.Add(newMoveMoney);
+
+
+                            var targetUser = context.User.FirstOrDefault(x => x.Id == targetPortfolioRecord.UserId);
+                            targetUser.Maney += targetPortfolioRecord.AllManey;
+                            context.Entry(targetUser).State = EntityState.Modified;
+
+
+                            context.Entry(targetPortfolioRecord).State = EntityState.Deleted;
+
+                        }
+                    }
+                    context.SaveChanges();
+                    return Ok();
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+        }
+
+        [HttpPost("restoreTool")]
+        public async Task restoreTool([FromBody]int id)
+        {
+            using (var context = new dbContact(_configuration))
+            {
+                var tool_Exist = await context.InvestTools.FindAsync(id);
+
+                tool_Exist.isClosed = false;
+
+                context.Entry(tool_Exist).State = EntityState.Modified;
+                context.SaveChanges();
             }
         }
     }

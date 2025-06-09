@@ -1,7 +1,4 @@
-﻿using Diplom_Utkin.Model.DataBase;
-using Finansu.Model;
-
-namespace DiplomAPI.Models.db
+﻿namespace DiplomAPI.Models.db
 {
     public class ApplicationHistory
     {

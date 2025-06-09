@@ -1,6 +1,4 @@
-﻿using DiplomAPI.Models.db;
-
-namespace Finansu.Model
+﻿namespace Finansu.Model
 {
     public class InvestTools
     {

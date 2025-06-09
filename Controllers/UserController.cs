@@ -5,8 +5,6 @@ using DiplomAPI.Models.Reports;
 using DiplomAPI.Models.Support;
 using DiplomAPI.Models.UserModels;
 using Finansu.Model;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -39,7 +37,7 @@ namespace DiplomAPI.Controllers
         }
 
         [HttpPost("UserSTools")]
-        public async Task<ActionResult<List<Portfolio>>> Post_UserSToolsAsync([FromBody]int id)
+        public async Task<ActionResult<List<InvestToolDop>>> Post_UserSToolsAsync([FromBody]int id)
         {
             return Ok(await _userKabinetService.UserSToolsAsync(id));
         }
@@ -67,6 +65,16 @@ namespace DiplomAPI.Controllers
             var resalt = await _userKabinetService.LoadDataFormDatabaseAsync(id);
             if (resalt == null) return BadRequest(resalt);
             return Ok(resalt);
+        }
+
+        [HttpGet("loadNews")]
+        public async Task<ActionResult<List<News>>> loadNews()
+        {
+            using (var context = new dbContact(_configuration))
+            {
+                var data = context.News.OrderByDescending(x => x.date).ToList();
+                return Ok(data);
+            }
         }
 
         [HttpPost("LoadBalanceHistory")]

@@ -1,6 +1,4 @@
-﻿using Finansu.Model;
-
-namespace DiplomAPI.Models.Support
+﻿namespace DiplomAPI.Models.Support
 {
     public class Imageporter
     {

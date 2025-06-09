@@ -1,9 +1,8 @@
 ﻿using DiplomAPI.Data;
 using DiplomAPI.Models.db;
+using DiplomAPI.Models.Support;
 using Finansu.Model;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 namespace DiplomAPI.Models.UserModels
 {
@@ -66,19 +65,40 @@ namespace DiplomAPI.Models.UserModels
             }
         }
 
-        public async Task<List<Portfolio>> UserSToolsAsync(int id)
+        public async Task<List<InvestToolDop>> UserSToolsAsync(int id)
         {
             using (var context = new dbContact(_configuration))
             {
+                DateTime curentDateStart = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+                curentDateStart.AddMonths(-1).AddDays(-1);
+
+                DateTime curentDateEnd = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month));
+                curentDateEnd = curentDateEnd.AddMonths(-1);
+
+                List<InvestToolDop> investToolDops = new List<InvestToolDop>();
+
+                var UserToolMove = context.dvizhenieSredstvs.Where(x => x.UserId == id &&  x.Money > 0).OrderByDescending(x => x.Date).ToList();
                 var UTools = await context.Portfolio.Include(x => x.InvestTool).Where(x => x.UserId == id).ToListAsync();
-                List<Portfolio> list = new List<Portfolio>();
                 foreach (var tool in UTools)
                 {
                     byte[] imageArray = System.IO.File.ReadAllBytes(tool.InvestTool.ImageSource);
                     tool.InvestTool.ImageSource = Convert.ToBase64String(imageArray);
-                    list.Add(tool);
+
+                    var pribl = await Calculate(id, curentDateStart, curentDateEnd, tool.InvestToolId);
+                    var targetEndDate = UserToolMove.First(x => x.InvestToolsId == tool.InvestToolId);
+
+                    InvestToolDop investToolDop = new InvestToolDop()
+                    {
+                        portfolio = tool,
+                        Pribl = pribl,
+                        DateTime = targetEndDate.Date
+
+                    };
+                    investToolDops.Add(investToolDop);
+
                 }
-                return list;
+
+                return investToolDops;
             }
         }
 

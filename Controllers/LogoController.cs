@@ -1,8 +1,6 @@
 ﻿using DiplomAPI.Data;
 using DiplomAPI.Models.LogoModels;
 using DiplomAPI.Models.Support;
-using Finansu.Model;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
