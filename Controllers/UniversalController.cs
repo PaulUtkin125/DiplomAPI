@@ -55,7 +55,7 @@ namespace DiplomAPI.Controllers
                 using (var context = new dbContact(_configuration))
                 {
                     var tool = context.InvestTools.Find(idTool.id);
-                    tool.ImageSource = _imageporter.porter(tool.ImageSource);
+                    tool.ImageSource = _imageporter.porter(tool.ImageSource, 2);
                     return Ok(tool);
                 }
             }

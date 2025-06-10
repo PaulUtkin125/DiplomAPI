@@ -36,7 +36,7 @@ namespace DiplomAPI.Controllers
                 {
                     if (item.SourseFile != "")
                     {
-                        item.SourseFile = _imageporter.porter(item.SourseFile);
+                        item.SourseFile = _imageporter.porter(item.SourseFile, 1);
                     }
                     
                 }
@@ -54,7 +54,7 @@ namespace DiplomAPI.Controllers
                 {
                     if (item.SourseFile != "")
                     {
-                        item.SourseFile = _imageporter.porter(item.SourseFile);
+                        item.SourseFile = _imageporter.porter(item.SourseFile, 1);
                     }
 
                 }
@@ -70,7 +70,7 @@ namespace DiplomAPI.Controllers
                 var data = await context.Brokers.Include(x => x.Urisidikciiy).FirstAsync(x => x.Id == Request.id);
                 if (data == null) return BadRequest();
 
-                data.SourseFile = _imageporter.porter(data.SourseFile);
+                data.SourseFile = _imageporter.porter(data.SourseFile, 1);
                 return Ok(data);
             }
         }

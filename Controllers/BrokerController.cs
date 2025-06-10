@@ -27,7 +27,7 @@ namespace DiplomAPI.Controllers
                 using (var context = new dbContact(_configuration))
                 {
                     var result = await context.Brokers.FindAsync(id);
-                    result.SourseFile = _imageporter.porter(result.SourseFile);
+                    result.SourseFile = _imageporter.porter(result.SourseFile, 1);
                     return Ok(result);
                 }
             }
@@ -49,7 +49,7 @@ namespace DiplomAPI.Controllers
 
                     foreach (var item in result)
                     {
-                        item.ImageSource = _imageporter.porter(item.ImageSource);
+                        item.ImageSource = _imageporter.porter(item.ImageSource, 2);
                     }
 
                     return Ok(result);

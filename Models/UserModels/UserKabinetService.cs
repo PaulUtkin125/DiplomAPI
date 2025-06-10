@@ -1,4 +1,5 @@
-﻿using DiplomAPI.Data;
+﻿using System.IO;
+using DiplomAPI.Data;
 using DiplomAPI.Models.db;
 using DiplomAPI.Models.Support;
 using Finansu.Model;
@@ -54,9 +55,16 @@ namespace DiplomAPI.Models.UserModels
                 var allTools = await context.InvestTools.Include(x => x.Brokers).Where(x => x.isClosed != true && x.isFrozen != true).ToListAsync();
 
                 List<InvestTools> list = new List<InvestTools>();
+                var desktopPath = "";
+
                 foreach (var investTool in allTools) 
                 {
-                    byte[] imageArray = System.IO.File.ReadAllBytes(investTool.ImageSource);
+                    if (investTool.ImageSource == "NoNPhoto.png") desktopPath = _configuration["UploadFile:Support"];
+                    else desktopPath = _configuration["UploadFile:Tool"];
+
+                    string fullPath = desktopPath + investTool.ImageSource;
+
+                    byte[] imageArray = System.IO.File.ReadAllBytes(desktopPath + investTool.ImageSource);
                     investTool.ImageSource = Convert.ToBase64String(imageArray);
                     list.Add(investTool);
                 }
@@ -81,7 +89,7 @@ namespace DiplomAPI.Models.UserModels
                 var UTools = await context.Portfolio.Include(x => x.InvestTool).Where(x => x.UserId == id).ToListAsync();
                 foreach (var tool in UTools)
                 {
-                    byte[] imageArray = System.IO.File.ReadAllBytes(tool.InvestTool.ImageSource);
+                    byte[] imageArray = System.IO.File.ReadAllBytes(_configuration["UploadFile:Tool"] + tool.InvestTool.ImageSource);
                     tool.InvestTool.ImageSource = Convert.ToBase64String(imageArray);
 
                     var pribl = await Calculate(id, curentDateStart, curentDateEnd, tool.InvestToolId);

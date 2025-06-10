@@ -7,10 +7,14 @@
         {
             _configuration = configuration;
         }
-        public string porter(string path) 
+        public string porter(string path, int mode) 
         {
-            if(path == "") return path;
-            byte[] imageArray = System.IO.File.ReadAllBytes(path);
+            var desktopPath = "";
+            if (mode == 1) desktopPath = _configuration["UploadFile:Broker"];
+            else if (mode == 2) desktopPath = _configuration["UploadFile:Tool"];
+            if (path == "NoNPhoto.png") desktopPath = _configuration["UploadFile:Support"];
+            if (path == "") return path;
+            byte[] imageArray = System.IO.File.ReadAllBytes(desktopPath + path);
             return Convert.ToBase64String(imageArray);
         }
 
@@ -22,7 +26,7 @@
             string targetPath;
             if (file == null || file.Length == 0)
             {
-                targetPath = Path.Combine(desktopPath, _configuration["UploadFile:Support"] + "\\NoNPhoto.png");
+                targetPath = Path.Combine(desktopPath, _configuration["UploadFile:Support"] + "NoNPhoto.png");
             }
             else
             {
@@ -36,8 +40,12 @@
 
 
 
-            return targetPath;
-        }
+            if (file == null) 
+            {
+                return "NoNPhoto.png";
+            }
+            else return file.FileName;
+         }
     }
 
 }
