@@ -85,7 +85,7 @@ namespace DiplomAPI.Controllers
                     var broker_Exist = await context.Brokers.FindAsync(modefite.brokerId);
                     if (modefite.mode == 0) // одобрить
                     {
-                        string password = PasswordGenerator();
+                        string password = await PasswordGenerator();
 
                         broker_Exist.TypeOfRequestId = 2;
                         broker_Exist.Password = password;
@@ -127,7 +127,7 @@ namespace DiplomAPI.Controllers
             }
         }
 
-        static private string PasswordGenerator()
+        static private async Task<string> PasswordGenerator()
         {
             const int length = 10;
 

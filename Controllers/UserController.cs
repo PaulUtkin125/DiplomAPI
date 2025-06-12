@@ -98,8 +98,8 @@ namespace DiplomAPI.Controllers
                             Date = record.Date,
                         };
                         muveOfMoney.Add(dvizhenieSredstv);
-                        muveOfMoney = muveOfMoney.OrderByDescending(x => x.Date).ToList();
                     }
+                    muveOfMoney = muveOfMoney.OrderByDescending(x => x.Date).ToList();
                     return Ok(muveOfMoney);
                 }
             }
@@ -223,7 +223,7 @@ namespace DiplomAPI.Controllers
                 using (var context = new dbContact(_configuration))
                 {
                     var dataList = await context.Portfolio.Include(x => x.InvestTool).ToListAsync();
-                        
+                    
                     return Ok(dataList);
                 }
             }

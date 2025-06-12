@@ -3,7 +3,7 @@
     public class DvizhenieSredstv
     {
         public int Id { get; set; }
-        public DateTime Date { get; set; } = DateTime.Now.Date;
+        public DateTime Date { get; set; } = DateTime.Now;
 
         public InvestTools InvestTools { get; set; }
         public int InvestToolsId { get; set; }
